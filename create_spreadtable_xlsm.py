@@ -27,7 +27,7 @@ summary_format.set_align('center')
 summary_date_format=summarybook.add_format()
 summary_date_format.set_align('center')
 # Add the VBA project binary.
-summarybook.add_vba_project('./UpdateTableValues.bin')
+summarybook.add_vba_project('./excel_vba_tools/UpdateTableValues.bin')
 
 format=summarybook.add_format()
 format.set_border(1)

@@ -5,7 +5,7 @@
 
 ## Note
 
-### fetch_tse.py
+### add buy/sell-pressure
 
 2016/05/30 - Modify from crawl.py to fetch_tse.py:
 
@@ -24,8 +24,19 @@
 	* excel_vba_tools: extract vba bin file from excel (.xlsm)
 		vba_extract.py xxx.xlsm
 
+### Usage
+##  get RAW data
+    產生空白表格在: python fetch_tse.py -i
+    自動更新TSE_RAW_DATA至今天: python fetch_tse.py
+##  create buy/sell-pressure table
+    spread table: python create_spreadtable_xlsm.py
+    one table: pyton create_table_xlsx.py
+
 ### Changelog
-    https://github.com/taiwanan/TW_Stock_Exchange_Crawler/blob/master/CHANGELOG.md
+    [CHANGELOG](CHANGELOG.md)
+
+### Contact Info.
+    [taiwanan](g9002012@gmail.com)
 
 ### Reference
     [股票即時資料爬蟲](https://github.com/Asoul/tsrtc)
