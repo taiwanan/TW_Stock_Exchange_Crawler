@@ -184,7 +184,7 @@ def get_last_rows_of_CSV(f_name):
 
 def merge_data(worksheet, f_name):
     last_row = get_last_rows_of_CSV(f_name)
-    if last_row < 248:
+    if last_row < 250:
         last_row = 250
     spamReader = csv.reader(open('{}/{}'.format(RAW_DATA_FOLDER, f_name), 'rb'), delimiter=',',quotechar='"')
     csv_row_count = 0
