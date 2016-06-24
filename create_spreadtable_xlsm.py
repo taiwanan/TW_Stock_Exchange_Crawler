@@ -81,11 +81,11 @@ def formula(worksheet):
         #=ABS(IF(G5>0,D5-F5,D5-E5))
         worksheet.write_formula(row+1, col_init+11, "ABS(IF(%s>0,%s-%s,%s-%s))"%(col_G, col_D, col_F, col_D, col_E))
         #漲幅總和
-        #=I5+K5
-        worksheet.write_formula(row+1, col_init+13, "%s+%s"%(col_I, col_K))
+        #=I5+K5 (if equal to 0, write 0.0001)
+        worksheet.write_formula(row+1, col_init+13, "IF(%s=0,IF(%s=0, 0.0001, %s+%s), %s+%s)"%(col_I, col_K, col_I, col_K, col_I, col_K))
         #跌幅總和
-        #=J5+L5
-        worksheet.write_formula(row+1, col_init+14, "%s+%s"%(col_J, col_L))
+        #=J5+L5 (if equal to 0, write 0.0001)
+        worksheet.write_formula(row+1, col_init+14, "IF(%s=0,IF(%s=0, 0.0001, %s+%s), %s+%s)"%(col_J, col_L, col_J, col_L, col_J, col_L))
         #買盤力道張數
         #=INT(B5*(N5/(N5+O5)))
         worksheet.write_formula(row+1, col_init+16, "INT(%s*(%s/(%s+%s)))"%(col_B, col_N, col_N, col_O))
