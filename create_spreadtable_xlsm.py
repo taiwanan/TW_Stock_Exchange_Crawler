@@ -185,13 +185,22 @@ def get_last_rows_of_CSV(f_name):
     return rows
 
 def merge_data(worksheet, f_name):
-    last_row = get_last_rows_of_CSV(f_name)
-    if last_row < 250:
-        last_row = 250
-    spamReader = csv.reader(open('{}/{}'.format(RAW_DATA_FOLDER, f_name), 'rb'), delimiter=',',quotechar='"')
+    last_row = 0
     csv_row_count = 0
     row_init = 1 
+    csv_rows_tmp = []
+
+    spamReader = csv.reader(open('{}/{}'.format(RAW_DATA_FOLDER, f_name), 'rb'), delimiter=',',quotechar='"')
+    # read data to memory and filter out invalid data
     for row in spamReader:
+        if row[1] != '0':
+            csv_rows_tmp.append(row)
+            last_row += 1
+
+    if last_row < 250:
+        last_row = 250
+
+    for row in csv_rows_tmp:
         csv_row_count +=1
         if csv_row_count > (last_row - 248):
             try:
