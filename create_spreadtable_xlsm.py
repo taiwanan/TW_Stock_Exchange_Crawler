@@ -192,13 +192,16 @@ def merge_data(worksheet, f_name):
 
     spamReader = csv.reader(open('{}/{}'.format(RAW_DATA_FOLDER, f_name), 'rb'), delimiter=',',quotechar='"')
     # read data to memory and filter out invalid data
+    count = 0
     for row in spamReader:
-        if row[1] != '0':
-            csv_rows_tmp.append(row)
-            last_row += 1
+        count += 1
+        if count > 2:   #column 1 and 2 are headers, ignore it
+            if (row[1] != '0') and (row[2] != '--'):
+                csv_rows_tmp.append(row)
+                last_row += 1
 
-    if last_row < 250:
-        last_row = 250
+    if last_row < 248:
+        last_row = 248
 
     for row in csv_rows_tmp:
         csv_row_count +=1
