@@ -48,35 +48,14 @@ class Crawler():
     def _tse_record(self, stock_id, row):
         ''' Save row to csv file '''
         f = open('{}/{}.csv'.format(self.prefix_tse, stock_id), 'ab')
-        cw = csv.writer(f, lineterminator='\n')
+        cw = csv.writer(f, lineterminator='\r\n')
         cw.writerow(row)
         f.close()
 
     def _otc_record(self, stock_id, row):
         ''' Save row to csv file '''
         f = open('{}/{}.csv'.format(self.prefix_otc, stock_id), 'ab')
-        cw = csv.writer(f, lineterminator='\n')
-        cw.writerow(row)
-        f.close()
-
-    def _clean_row(self, row):
-        ''' Clean comma and spaces '''
-        for index, content in enumerate(row):
-            row[index] = re.sub(",", "", content.strip())
-            row[index] = filter(lambda x: x in string.printable, row[index])
-        return row
-
-    def _tse_record(self, stock_id, row):
-        ''' Save row to csv file '''
-        f = open('{}/{}.csv'.format(self.prefix_tse, stock_id), 'ab')
-        cw = csv.writer(f, lineterminator='\n')
-        cw.writerow(row)
-        f.close()
-
-    def _otc_record(self, stock_id, row):
-        ''' Save row to csv file '''
-        f = open('{}/{}.csv'.format(self.prefix_otc, stock_id), 'ab')
-        cw = csv.writer(f, lineterminator='\n')
+        cw = csv.writer(f, lineterminator='\r\n')
         cw.writerow(row)
         f.close()
 
@@ -116,7 +95,7 @@ class Crawler():
                 tds[8], # 收盤價
                 sign + tds[9], # 漲跌價差
                 tds[3], # 成交筆數
-                tds[4] # 成交金額
+                tds[4], # 成交金額
             ])
             if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
                 self._tse_record(tds[0].strip(), row)
@@ -155,7 +134,7 @@ class Crawler():
                     tr[2], # 收盤價
                     tr[3], # 漲跌價差
                     tr[10], # 成交筆數
-                    tr[9] # 成交金額
+                    tr[9], # 成交金額
                 ])
                 if (os.path.isfile('{}/{}.csv'.format(self.prefix_otc, tr[0]))):
                     self._otc_record(tr[0], row)
