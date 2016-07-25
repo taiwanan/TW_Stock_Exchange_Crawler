@@ -5,6 +5,20 @@
 
 ## Note
 
+### 增加`財報損益表`擷取
+
+2016/07/22 - add fetch_earnings.py
+
+	* 抓取上市及上櫃損益表資料, 分別儲存在 tse_earning_raw_data 及 otc_earning_raw_data
+	* step1: 產生表格 (離今天最近的工作日產生) 
+```
+	         python fetch_earnings.py -i
+```
+      step2: 指定的 年份+季度
+```
+	         python fetch_earnings.py YYYY Q
+			 ex. pythong fetch_earnings.py 2013 1
+```
 ### 增加`買賣壓力表`分析 ( [E大](http://ebigmoney.pixnet.net/blog/post/190015890) )
 
 2016/05/30 - Modify from crawl.py to fetch_tse.py:
