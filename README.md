@@ -9,7 +9,7 @@
 
 2016/07/22 - add fetch_earnings.py
 
-抓取上市及上櫃損益表資料, 分別儲存在 tse_earning_raw_data 及 otc_earning_raw_data＜/br＞
+抓取上市及上櫃損益表資料, 分別儲存在 tse_earning_raw_data 及 otc_earning_raw_data</br>
 step1: 產生表格 (離今天最近的工作日產生) 
 ```
 python fetch_earnings.py -i
