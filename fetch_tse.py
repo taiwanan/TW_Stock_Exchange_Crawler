@@ -181,7 +181,7 @@ class Crawler():
             f = file('{}/{}.csv'.format(self.prefix_tse, stock_id), 'wb')
             f.write(codecs.BOM_UTF8)
             
-            cw = csv.writer(f, lineterminator='\n')
+            cw = csv.writer(f, lineterminator='\r\n')
             cw.writerow(stock_info)
             cw.writerow(headers)
             f.close()
@@ -214,7 +214,7 @@ class Crawler():
                 f = file('{}/{}.csv'.format(self.prefix_otc, stock_id), 'wb')
                 f.write(codecs.BOM_UTF8)
             
-                cw = csv.writer(f, lineterminator='\n')
+                cw = csv.writer(f, lineterminator='\r\n')
                 cw.writerow(stock_info)
                 cw.writerow(headers)
                 f.close()
