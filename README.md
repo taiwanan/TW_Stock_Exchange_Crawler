@@ -9,15 +9,15 @@
 
 2016/07/22 - add fetch_earnings.py
 
-	* 抓取上市及上櫃損益表資料, 分別儲存在 tse_earning_raw_data 及 otc_earning_raw_data
-	* step1: 產生表格 (離今天最近的工作日產生) 
+抓取上市及上櫃損益表資料, 分別儲存在 tse_earning_raw_data 及 otc_earning_raw_data
+step1: 產生表格 (離今天最近的工作日產生) 
 ```
-	         python fetch_earnings.py -i
+python fetch_earnings.py -i
 ```
-      step2: 指定的 年份+季度
+step2: 指定的 年份+季度
 ```
-	         python fetch_earnings.py YYYY Q
-			 ex. pythong fetch_earnings.py 2013 1
+python fetch_earnings.py YYYY Q
+ex. pythong fetch_earnings.py 2013 1
 ```
 ### 增加`買賣壓力表`分析 ( [E大](http://ebigmoney.pixnet.net/blog/post/190015890) )
 
@@ -59,7 +59,7 @@ python create_table_xlsx.py
 ```
 
 ## Contact Info.
-taiwanan `g9002012@gmail.com`
+taiwanan @ `g9002012@gmail.com`
 
 ## Reference
 * [CHANGELOG](CHANGELOG.md)
