@@ -24,6 +24,7 @@ rm -f ./tse_earning_raw_data/2890.csv
 rm -f ./tse_earning_raw_data/2891.csv
 rm -f ./tse_earning_raw_data/2892.csv
 rm -f ./tse_earning_raw_data/????A.csv
+rm -f ./otc_earning_raw_data/4147.csv
 rm -f ./otc_earning_raw_data/4707.csv
 rm -f ./otc_earning_raw_data/5820.csv
 rm -f ./otc_earning_raw_data/6015.csv
