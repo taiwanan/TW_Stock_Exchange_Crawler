@@ -10,6 +10,7 @@ rm -f ./tse_earning_raw_data/2905.csv
 rm -f ./tse_earning_raw_data/2801.csv
 rm -f ./tse_earning_raw_data/2809.csv
 rm -f ./tse_earning_raw_data/2812.csv
+rm -f ./tse_earning_raw_data/2816.csv
 rm -f ./tse_earning_raw_data/2820.csv
 rm -f ./tse_earning_raw_data/2834.csv
 rm -f ./tse_earning_raw_data/2836.csv

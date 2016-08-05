@@ -153,7 +153,7 @@ class Crawler():
                 CRAWLING_ERR = True
                 logging.error("%5s  損益表查無[%15s]資料, 填0代替"%(stock_id, item_data.decode('big5').encode('utf-8')))
                 row_data.append('0')
-                return
+
 
         # 當期權益變動表: 本業淨利, 非控制淨利
         valid_data = False
