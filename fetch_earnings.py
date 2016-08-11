@@ -63,7 +63,7 @@ class Crawler():
         cw.writerow(row)
         f.close()
 
-    def _get_earning_data(self, data_type, stock_id, year, quarter):
+    def _get_earning_data(self, IFRS_type, data_type, stock_id, year, quarter):
 
         global CRAWLING_ERR
 
@@ -73,9 +73,8 @@ class Crawler():
                     u'　 營業毛利（毛損）淨額'.encode('big5'),  u'　　 營業費用合計'.encode('big5'),
                     u'　 營業利益（損失）'.encode('big5'),      u'　　 營業外收入及支出合計'.encode('big5'),
                     u'　 本期淨利（淨損）'.encode('big5'),      u'　　 基本每股盈餘合計'.encode('big5')]
-        # 當期權益變動表: 本業淨利, 非控制淨利, 股本
-        data_col_e1 = u' 本期淨利（淨損）'.encode('big5')
-        data_col_e2 = u' 期末餘額'.encode('big5')   # 股本(股) =  期末餘額 / 10
+        # 負債表
+        data_col_e1 = u'　　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
 
         process_count = 0
         payload = {
@@ -83,7 +82,7 @@ class Crawler():
             'CO_ID': stock_id,
             'SYEAR':year,
             'SSEASON':quarter,
-            'REPORT_ID':'C'  #合併財報
+            'REPORT_ID': IFRS_type  # C: 合併財報(init), A: 個別財報
         }
 
         url = 'http://mops.twse.com.tw/server-java/t164sb01'
@@ -116,18 +115,21 @@ class Crawler():
             valid = tr.xpath('text()')
             try:
                 if (valid_text == valid[0].encode('ISO-8859-1')):
-                    logging.error("%5s  查無資料"%(stock_id))
-                    CRAWLING_ERR = True
+                    # try another IFRS_type
+                    if ( IFRS_type == 'C'):
+                        return self._get_earning_data('A', 'tse', stock_id, year, quarter)
+                    elif( iFRS_type == 'A'):
+                        logging.error("%5s  查無資料"%(stock_id))
+                        CRAWLING_ERR = True
 
-                    row = self._clean_row([date_col_00, 'n/a']) 
+                        row = self._clean_row([date_col_00, 'n/a'])
 
-                    if (data_type == 'tse'):
-                        if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
-                            self._tse_record(stock_id, row)
-                    elif (data_type == 'otc'):
-                        if (os.path.isfile('{}/{}.csv'.format(self.prefix_otc, stock_id))):
-                            self._otc_record(stock_id, row)
-
+                        if (data_type == 'tse'):
+                            if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
+                                self._tse_record(stock_id, row)
+                        elif (data_type == 'otc'):
+                            if (os.path.isfile('{}/{}.csv'.format(self.prefix_otc, stock_id))):
+                                self._otc_record(stock_id, row)
                     return
                 else:
                     break
@@ -137,7 +139,6 @@ class Crawler():
         # table 1: head
         # table 2: balance sheet, table 3: profix & loss statement, table 4: cashflow statement
         row_data = []
-#        test = [u'　　 營業收入合計'.encode('big5'), u'　　 母公司業主（淨利／損）', u'　　 非控制權益（淨利／損）']
         valid_data = False
         for item_data in data_col:
             for tr in tree.xpath('//table[3]/tr'):
@@ -155,29 +156,12 @@ class Crawler():
                 row_data.append('0')
 
 
-        # 當期權益變動表: 本業淨利, 非控制淨利
+        # 資產負債表: 股本
         valid_data = False
-        for tr in tree.xpath('//table[5]/tr'):
+        for tr in tree.xpath('//table[2]/tr'):
             try:
                 tds = tr.xpath('td/text()')
                 if (data_col_e1 == tds[0].encode('ISO-8859-1')):
-                    row_data.append(tds[len(tds)-3])    #母公司淨利
-                    row_data.append(tds[len(tds)-2])    #非控制淨利
-                    valid_data = True
-            except:
-                valid_data = False
-
-        if (valid_data == False):
-            CRAWLING_ERR = True
-            logging.error("%5s  母公司/非控制淨利查無資料"%(stock_id))
-            row_data.append('0')    #母公司淨利
-            row_data.append('0')    #非控制淨利
-
-        # 當期權益變動表: 股本
-        for tr in tree.xpath('//table[5]/tr'):
-            try:
-                tds = tr.xpath('td/text()')
-                if (data_col_e2 == tds[0].encode('ISO-8859-1')):
                     row_data.append(tds[1])             #股本
                     valid_data = True
                 else:
@@ -200,9 +184,7 @@ class Crawler():
                 row_data[5], # 業外收入
                 row_data[6], # 淨利
                 row_data[7], # EPS
-                row_data[8], # 母公司淨利
-                row_data[9], # 非控制淨利
-                row_data[10], # 股本
+                row_data[8], # 股本
             ])
 
         if (data_type == 'tse'):
@@ -219,7 +201,7 @@ class Crawler():
         headers = [ u'季度'.encode('utf-8'), u'營收'.encode('utf-8'), u'營業成本'.encode('utf-8'), 
                     u'營業毛利'.encode('utf-8'), u'營業費用'.encode('utf-8'), u'營業利益'.encode('utf-8'), 
                     u'業外收入'.encode('utf-8'), u'淨利'.encode('utf-8'), u'每股盈餘'.encode('utf-8'),
-                    u'母公司淨利'.encode('utf-8'), u'非控制淨利'.encode('utf-8'), u'股本'.encode('utf-8')]
+                    u'股本'.encode('utf-8')]
         payload = {
             'download': '',
             'qdate': date_str,
@@ -301,7 +283,7 @@ class Crawler():
         for filename in glob.glob("./{}/*.csv".format(self.prefix_tse)):
             (f_path, f_name) = os.path.split(filename)
             (f_short_name, f_extension) = os.path.splitext(f_name)
-            self._get_earning_data('tse', f_short_name, year, quarter)
+            self._get_earning_data('C', 'tse', f_short_name, year, quarter)
             process_count += 1
             self.process(f_short_name, self.tse_files, process_count)
 
@@ -310,7 +292,7 @@ class Crawler():
         for filename in glob.glob("./{}/*.csv".format(self.prefix_otc)):
             (f_path, f_name) = os.path.split(filename)
             (f_short_name, f_extension) = os.path.splitext(f_name)
-            self._get_earning_data('otc', f_short_name, year, quarter)
+            self._get_earning_data('C', 'otc', f_short_name, year, quarter)
             process_count += 1
             self.process(f_short_name, self.otc_files, process_count)
 
