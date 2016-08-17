@@ -75,6 +75,7 @@ class Crawler():
                     u'　 本期淨利（淨損）'.encode('big5'),      u'　　 基本每股盈餘合計'.encode('big5')]
         # 負債表
         data_col_e1 = u'　　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
+        data_col_e2 = u'　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
 
         process_count = 0
         payload = {
@@ -110,6 +111,7 @@ class Crawler():
 
         # check data is valid
         valid_text = u'查無資料'.encode('big5')
+        valid_text2= u'檔案不存在'.encode('big5')
         row = []
         for tr in tree.xpath('//h4/font'):
             valid = tr.xpath('text()')
@@ -117,8 +119,10 @@ class Crawler():
                 if (valid_text == valid[0].encode('ISO-8859-1')):
                     # try another IFRS_type
                     if ( IFRS_type == 'C'):
-                        return self._get_earning_data('A', 'tse', stock_id, year, quarter)
-                    elif( iFRS_type == 'A'):
+                        time.sleep(180)
+                        self._get_earning_data('A', data_type, stock_id, year, quarter)
+                        return
+                    elif( IFRS_type == 'A'):
                         logging.error("%5s  查無資料"%(stock_id))
                         CRAWLING_ERR = True
 
@@ -126,13 +130,26 @@ class Crawler():
 
                         if (data_type == 'tse'):
                             if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
-                                self._tse_record(stock_id, row)
+                                return self._tse_record(stock_id, row)
                         elif (data_type == 'otc'):
                             if (os.path.isfile('{}/{}.csv'.format(self.prefix_otc, stock_id))):
-                                self._otc_record(stock_id, row)
-                    return
+                                return self._otc_record(stock_id, row)
                 else:
-                    break
+                    # 檔案不存在
+                    valid_len = len(valid[0])
+                    if (valid_text2 == valid[0][valid_len-10:valid_len].encode('ISO-8859-1')):
+
+                        logging.error("%5s  查無資料"%(stock_id))
+                        CRAWLING_ERR = True
+
+                        row = self._clean_row([date_col_00, 'n/a'])
+
+                        if (data_type == 'tse'):
+                            if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
+                                return self._tse_record(stock_id, row)
+                        elif (data_type == 'otc'):
+                            if (os.path.isfile('{}/{}.csv'.format(self.prefix_otc, stock_id))):
+                                return self._otc_record(stock_id, row)
             except:
                 pass 
                 
@@ -164,8 +181,9 @@ class Crawler():
                 if (data_col_e1 == tds[0].encode('ISO-8859-1')):
                     row_data.append(tds[1])             #股本
                     valid_data = True
-                else:
-                    pass 
+                elif (data_col_e2 == tds[0].encode('ISO-8859-1')):
+                    row_data.append(tds[1])             #股本
+                    valid_data = True
             except: 
                 valid_data = False
 
