@@ -76,6 +76,7 @@ class Crawler():
         # 負債表
         data_col_e1 = u'　　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
         data_col_e2 = u'　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
+        data_col_e3 = u'　　　　　 股本合計'.encode('big5')   # 股數 =  股本合計 / 10
 
         process_count = 0
         payload = {
@@ -182,6 +183,9 @@ class Crawler():
                     row_data.append(tds[1])             #股本
                     valid_data = True
                 elif (data_col_e2 == tds[0].encode('ISO-8859-1')):
+                    row_data.append(tds[1])             #股本
+                    valid_data = True
+                elif (data_col_e3 == tds[0].encode('ISO-8859-1')):
                     row_data.append(tds[1])             #股本
                     valid_data = True
             except: 
