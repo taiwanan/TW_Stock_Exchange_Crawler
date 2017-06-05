@@ -61,6 +61,18 @@ class Crawler():
 
     def _get_tse_data(self, date_str):
         process_count = 0
+        date_str_w = date_str.replace("/","")   #strip '/' in date_str
+        date_str_c = str((int(date_str[0:4])-1911))+date_str[4:]    #transfer to Taiwan year
+
+        url = 'http://www.twse.com.tw/exchangeReport/MI_INDEX?response=html&date={}&type={}'.format(date_str_w, 'ALLBUT0999')
+        page = requests.get(url)
+
+        if not page.ok:
+            logging.error("Can not get TSE data at {}".format(date_str_c))
+            return
+
+
+        ''' #TWSE changed its access path, fixed on 2017/06/05
         payload = {
             'download': '',
             'qdate': date_str,
@@ -74,11 +86,11 @@ class Crawler():
         if not page.ok:
             logging.error("Can not get TSE data at {}".format(date_str))
             return
-
+        '''
         # Parse page
         tree = html.fromstring(page.text)
 
-        for tr in tree.xpath('//table[2]/tbody/tr'):
+        for tr in tree.xpath('//table[5]/tbody/tr'):
             tds = tr.xpath('td/text()')
 
             sign = tr.xpath('td/font/text()')
@@ -86,7 +98,7 @@ class Crawler():
             stock_id = tds[0].strip()
 
             row = self._clean_row([
-                date_str, # 日期
+                date_str_c, # 日期
                 tds[2], # 成交股數
                 #tds[4], # 成交金額
                 tds[5], # 開盤價
@@ -100,11 +112,12 @@ class Crawler():
             if (os.path.isfile('{}/{}.csv'.format(self.prefix_tse, stock_id))):
                 self._tse_record(tds[0].strip(), row)
                 process_count += 1
-                self.process(date_str, self.tse_files, process_count)
+                self.process(date_str_c, self.tse_files, process_count)
+
         if (tree.xpath('//table[2]/tbody/tr')):
             print ''
         else:
-            print date_str + "... none"
+            print date_str_c + "... none"
 
     def _get_otc_data(self, date_str):
         ttime = str(int(time.time()*100))
@@ -224,16 +237,17 @@ class Crawler():
         print "done!"        
 
     def get_data(self, data_type, year, month, day):
-        date_str = '{0}/{1:02d}/{2:02d}'.format(year - 1911, month, day)
+        date_str_c = '{0}/{1:02d}/{2:02d}'.format(year - 1911, month, day)
+        date_str_w = '{0}/{1:02d}/{2:02d}'.format(year,month,day)
         #print 'Crawling {}'.format(date_str)
         #print format(date_str),
     	if ((data_type == 'ALL') or (data_type == 'all')):
-            self._get_tse_data(date_str)
-            self._get_otc_data(date_str)
+            self._get_tse_data(date_str_w)
+            self._get_otc_data(date_str_c)
     	elif ((data_type == 'OTC') or (data_type == 'otc')):
-            self._get_otc_data(date_str)
+            self._get_otc_data(date_str_c)
         else:
-            self._get_tse_data(date_str)
+            self._get_tse_data(date_str_w)
 
 def get_last_date():
     with open('./tse_raw_data/0050.csv', 'rb') as file:
