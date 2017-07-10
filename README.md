@@ -4,6 +4,20 @@
 藉由爬下的資料數據做分析。
 
 ## Note
+### 檔案說明
+抓取上市個股: fetch_tse.py
+產生上市買賣壓力分析表: create_spreadtable_xlsm.py
+
+抓取大盤指數並產生波段動能圖: fetch_twse_idx.py
+
+抓取上市/櫃財報: fetch_earning.py YYYY Q
+
+### 增加`TWSE波段動能圖`
+2017/07/10 - add fetch_twse_idx.py
+
+自動更新台股指數(TWSE_IDX.csv)並產生往前推一年的台股指數波段動能圖(twse_momentum_table.xlsx)
+
+參考文件: documents/TWSE_Momentum_intro (from: [E大](http://ebigmoney.pixnet.net/blog))
 
 ### 增加`財報損益表`擷取
 

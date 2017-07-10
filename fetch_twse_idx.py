@@ -139,7 +139,7 @@ def main():
     # Crawl data
     # TWSE-Volume first day is 1990/01
     # TWSE-Index first day is 1999/01
-    print 'Crawling TWSE index and volume'
+    print '***** Crawling TWSE index and volume *****'
 
     # update TWSE index data till today 
 
@@ -154,7 +154,7 @@ def main():
     lastday = lastdate.split('/')[2]
 
     last_day = datetime(int(lastyear), int(lastmonth), int(lastday))
-    first_day = datetime(int(1999), int(3), int(31))
+    #first_day = datetime(int(1999), int(3), int(31))
     
     if last_day.strftime('%Y/%m/%d') == first_day.strftime('%Y/%m/%d'):
         print 'your data is up-to-date'
@@ -187,6 +187,8 @@ def main():
 
         print ''
         print "done!"        
+        print ''
+        os.system('python create_twse_momentum_xlsx.py')
 
 if __name__ == '__main__':
     main()
