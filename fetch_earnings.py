@@ -154,12 +154,13 @@ class Crawler():
             except:
                 pass 
                 
-        # table 1: head
-        # table 2: balance sheet, table 3: profix & loss statement, table 4: cashflow statement
+        # TWSE server modify table sequence in database after 2017/Q2, change talbe count (@2017/08/23)
+        # table 0: head
+        # table 1: balance sheet, table 2: profix & loss statement, table 3: cashflow statement
         row_data = []
         valid_data = False
         for item_data in data_col:
-            for tr in tree.xpath('//table[3]/tr'):
+            for tr in tree.xpath('//table[2]/tr'):
                 tds = tr.xpath('td/text()')
                 try:
                     if (item_data == tds[0].encode('ISO-8859-1')):
@@ -176,7 +177,7 @@ class Crawler():
 
         # 資產負債表: 股本
         valid_data = False
-        for tr in tree.xpath('//table[2]/tr'):
+        for tr in tree.xpath('//table[1]/tr'):
             try:
                 tds = tr.xpath('td/text()')
                 if (data_col_e1 == tds[0].encode('ISO-8859-1')):
