@@ -4,6 +4,7 @@ import openpyxl
 import glob
 import csv
 import os
+import numpy as np
 
 from os import mkdir
 from os.path import isdir
@@ -26,7 +27,9 @@ WorkingDirectory = os.getcwd()
 TSE_RAW_DATA_FOLDER = 'tse_earning_raw_data'
 OTC_RAW_DATA_FOLDER = 'otc_earning_raw_data'
 OUTPUT_CHART_FILE = 'tse_otc_earning_chart.xlsx'
-TOTAL_YEARS = 3 
+TOTAL_YEARS = 3
+
+Q4 = np.array([0,0,0],np.int) 
 
 column_titles = [u'營收', u'毛利', u'營利', u'EPS']
 
@@ -171,9 +174,9 @@ def merge_data(worksheet, f_name, start_year, start_row):
     global TSE_RAW_DATA_FOLDER
     global OTC_RAW_DATA_FOLDER
     global TOTAL_YEARS
+    global Q4
 
-    last_row = 0
-    csv_row_count = 0
+    Q4 = 0
     col_init = 2  # start to fill data at column 2
 
     count = 0
@@ -187,16 +190,37 @@ def merge_data(worksheet, f_name, start_year, start_row):
         spamReader = csv.reader(open('{}/{}'.format(OTC_RAW_DATA_FOLDER, f_name), 'rb'), delimiter=',',quotechar='"')
 
 
-    # read data to memory and filter out invalid data
+    ## read data to memory and filter out invalid data
     for row in spamReader:
         count += 1
         if count > 2:   #row 1 and 2 are headers, ignore it
             csv_rows_tmp.append(row)
-            last_row += 1
 
+    ## write data to worksheet
     for row in csv_rows_tmp:
         if (row[0] == "%s Q1"%(start_year)) or (start_to_fetch == True):
             start_to_fetch = True 
+
+            # RAW data for Q4 means a whole year, modify to Q4 = Q4 - (Q1 ~ Q3) 
+            if (row[0] == "%s Q4"%(start_year)):
+                if (row[1] != 'n/a'):
+                    tmp = np.array([int(row[1]),int(row[3]),int(row[5])])
+                    Q4 = tmp - Q4 
+                    #print Q4
+                    row[1] = Q4[0] # 營收
+                    row[3] = Q4[1] # 毛利
+                    row[5] = Q4[2] # 營益
+                start_year +=1
+                Q4 = 0
+            else:
+                if (row[1] == 'n/a'):
+                    #tmp = np.zeros((3,), dtype=np.int)
+                    tmp = 0
+                else:
+                    tmp = np.array([int(row[1]),int(row[3]),int(row[5])])
+                Q4 = Q4 + tmp 
+
+            # write data to worksheet
             if (row[1] != 'n/a'):
                 worksheet.write((start_row<<2)+1, col_init, row[1]) # 營收
                 worksheet.write((start_row<<2)+2, col_init, row[3]) # 毛利
@@ -209,45 +233,6 @@ def merge_data(worksheet, f_name, start_year, start_row):
                 worksheet.write((start_row<<2)+3, col_init, 'n/a')
                 worksheet.write((start_row<<2)+4, col_init, 'n/a')
                 col_init +=1
-
-
-            #csv_row_count +=1
-            #year = row[0].split(" ")
-            #    print row 
-            #if row[0] == "%s Q1"%(start_year):
-            #    print 'match...' + row[0] + row[1] 
-
-
-    '''
-    if last_row < TOTAL_DAYS:
-        last_row = TOTAL_DAYS
-
-    for row in csv_rows_tmp:
-        csv_row_count +=1
-        if csv_row_count > (last_row - TOTAL_DAYS):
-            try:
-                new_open  = float(row[1])
-                new_high  = float(row[2])
-                new_low   = float(row[3])
-                new_close = float(row[4])
-            except ValueError:
-                new_open  = row[1]
-                new_high  = row[2]
-                new_low   = row[3]
-                new_close = row[4]
-            pass    
-
-            worksheet.write(row_init, 0, row[0])
-            worksheet.write(row_init, 1, new_open)
-            worksheet.write(row_init, 2, new_high)
-            worksheet.write(row_init, 3, new_low)
-            worksheet.write(row_init, 4, new_close)
-            row_init +=1
-
-            print "copy data @ " + "%10s...\r"%row[0],
-
-    print ''
-    '''        
 
 def process(market, name, total, count):
     if(market == 'TSE'):
@@ -298,7 +283,7 @@ def main():
     'align': 'center',
     'valign': 'vcenter',
     'text_wrap': True,
-    'bg_color': '#666666',
+    'bg_color': '#777777',
     })
 
     merge_format_2 = spreadbook.add_format({
@@ -314,12 +299,14 @@ def main():
 
     tse_spreadsheet = spreadbook.add_worksheet('TSE')
     tse_spreadsheet.freeze_panes(1, 0)
+    tse_spreadsheet.set_row(0, 15, title_format) # title format
     tse_spreadsheet.write_row('A1', row_titles, title_format)
     tse_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 11 
     tse_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
 
     otc_spreadsheet = spreadbook.add_worksheet('OTC')
     otc_spreadsheet.freeze_panes(1, 0)
+    otc_spreadsheet.set_row(0, 15, title_format) # title format
     otc_spreadsheet.write_row('A1', row_titles, title_format)
     otc_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 11 
     otc_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
@@ -330,7 +317,7 @@ def main():
     # chart - xlswriter
     #chart_def(spreadbook, spreadsheet, RAW_DATA_FILE)
 
-    # merge data
+    ### merge data
     ## this is for TSE data merge
     for filename in glob.glob("./{}/*.csv".format(TSE_RAW_DATA_FOLDER)):
         (f_path, f_name) = os.path.split(filename)
@@ -345,7 +332,7 @@ def main():
         # alternative color for stock ID
         color_format = spreadbook.add_format()
         if (stock_count % 2) == 0:
-            color_format.set_bg_color('#666666')
+            color_format.set_bg_color('#777777')
             color_format.set_border(1) 
             tse_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_1)  #
             tse_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_1)  #
@@ -388,7 +375,7 @@ def main():
         # alternative color for stock ID
         color_format = spreadbook.add_format()
         if (stock_count % 2) == 0:
-            color_format.set_bg_color('#666666')
+            color_format.set_bg_color('#777777')
             color_format.set_border(1) 
             otc_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_1)  #
             otc_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_1)  #

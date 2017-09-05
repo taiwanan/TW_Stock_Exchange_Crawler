@@ -5,12 +5,13 @@
 
 ## Note
 ### 檔案說明
-抓取上市個股: fetch_tse.py
+抓取上市個股: fetch_tse.py</br>
 產生上市買賣壓力分析表: create_spreadtable_xlsm.py
 
 抓取大盤指數並產生波段動能圖: fetch_twse_idx.py
 
-抓取上市/櫃財報: fetch_earning.py YYYY Q
+抓取上市/櫃財報: fetch_earning.py YYYY Q</br>:w
+產生上市櫃財報分析表: create_earning_chart_xlsm.py (三年期間 營收, 毛利, 營益)
 
 ### 增加`TWSE波段動能圖`
 2017/07/10 - add fetch_twse_idx.py
