@@ -222,16 +222,24 @@ def merge_data(worksheet, f_name, start_year, start_row):
 
             # write data to worksheet
             if (row[1] != 'n/a'):
-                worksheet.write((start_row<<2)+1, col_init, row[1]) # 營收
-                worksheet.write((start_row<<2)+2, col_init, row[3]) # 毛利
-                worksheet.write((start_row<<2)+3, col_init, row[5]) # 營益
-                worksheet.write((start_row<<2)+4, col_init, '%1.2f'%(float(row[5])/(float(row[9])/10))) # 營益的EPS
+                worksheet.write_number((start_row*6)+1, col_init, int(row[1])) # 營收
+                worksheet.write_number((start_row*6)+2, col_init, int(row[3])) # 毛利
+                if (row[1] == '0' or row[1] == 0):
+                    worksheet.write_number((start_row*6)+3, col_init, 0) # 毛利率
+                    worksheet.write_number((start_row*6)+5, col_init, 0) # 營益率
+                else:
+                    worksheet.write((start_row*6)+3, col_init, float(row[3])/float(row[1])) # 毛利率
+                    worksheet.write((start_row*6)+5, col_init, float(row[5])/float(row[1])) # 營益率
+                worksheet.write_number((start_row*6)+4, col_init, int(row[5])) # 營益
+                worksheet.write((start_row*6)+6, col_init, '%1.2f'%(float(row[5])/(float(row[9])/10))) # 營益的EPS
                 col_init +=1
             else:
-                worksheet.write((start_row<<2)+1, col_init, 'n/a')
-                worksheet.write((start_row<<2)+2, col_init, 'n/a')
-                worksheet.write((start_row<<2)+3, col_init, 'n/a')
-                worksheet.write((start_row<<2)+4, col_init, 'n/a')
+                worksheet.write((start_row*6)+1, col_init, 'n/a')
+                worksheet.write((start_row*6)+2, col_init, 'n/a')
+                worksheet.write((start_row*6)+3, col_init, 'n/a')
+                worksheet.write((start_row*6)+4, col_init, 'n/a')
+                worksheet.write((start_row*6)+5, col_init, 'n/a')
+                worksheet.write((start_row*6)+6, col_init, 'n/a')
                 col_init +=1
 
 def process(market, name, total, count):
@@ -286,6 +294,15 @@ def main():
     'bg_color': '#777777',
     })
 
+    merge_format_1a= spreadbook.add_format({
+    'border': 1,
+    'align': 'center',
+    'valign': 'vcenter',
+    'text_wrap': True,
+    'bg_color': '#777777',
+    'num_format': '0%',
+    })
+
     merge_format_2 = spreadbook.add_format({
     'border': 1,
     'align': 'center',
@@ -294,8 +311,16 @@ def main():
     'bg_color': '#cccccc',
     })
 
-    number_format=spreadbook.add_format()
-    number_format.set_num_format('0.00')
+    merge_format_2a = spreadbook.add_format({
+    'border': 1,
+    'align': 'center',
+    'valign': 'vcenter',
+    'text_wrap': True,
+    'bg_color': '#cccccc',
+    'num_format': '0%',
+    })
+
+    number_format = spreadbook.add_format({'num_format': '0.00'})
 
     tse_spreadsheet = spreadbook.add_worksheet('TSE')
     tse_spreadsheet.freeze_panes(1, 0)
@@ -330,28 +355,35 @@ def main():
                 stock_name = u'%s(%s)'%(row[0].decode('utf-8').strip(" "),f_short_name)
                 break
         # alternative color for stock ID
+        stock_count_row = stock_count * 6
         color_format = spreadbook.add_format()
         if (stock_count % 2) == 0:
             color_format.set_bg_color('#777777')
             color_format.set_border(1) 
-            tse_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_1)  #
-            tse_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_1)  #
-            tse_spreadsheet.set_row((stock_count<<2)+3, 15, merge_format_1)  #
-            tse_spreadsheet.set_row((stock_count<<2)+4, 15, merge_format_1)  #
-            tse_spreadsheet.merge_range((stock_count<<2)+1,0,(stock_count<<2)+4,0,stock_name, merge_format_1)
+            tse_spreadsheet.set_row((stock_count_row)+1, 15, merge_format_1)  #
+            tse_spreadsheet.set_row((stock_count_row)+2, 15, merge_format_1)  #
+            tse_spreadsheet.set_row((stock_count_row)+3, 15, merge_format_1a) #
+            tse_spreadsheet.set_row((stock_count_row)+4, 15, merge_format_1)  #
+            tse_spreadsheet.set_row((stock_count_row)+5, 15, merge_format_1a) #
+            tse_spreadsheet.set_row((stock_count_row)+6, 15, merge_format_1)  #
+            tse_spreadsheet.merge_range((stock_count_row)+1,0,(stock_count_row)+6,0,stock_name, merge_format_1)
         else:
             color_format.set_bg_color('#cccccc')
             color_format.set_border(1) 
-            tse_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_2)  #
-            tse_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_2)  #
-            tse_spreadsheet.set_row((stock_count<<2)+3, 15, merge_format_2)  #
-            tse_spreadsheet.set_row((stock_count<<2)+4, 15, merge_format_2)  #
-            tse_spreadsheet.merge_range((stock_count<<2)+1,0,(stock_count<<2)+4,0,stock_name, merge_format_2)
+            tse_spreadsheet.set_row((stock_count_row)+1, 15, merge_format_2)  #
+            tse_spreadsheet.set_row((stock_count_row)+2, 15, merge_format_2)  #
+            tse_spreadsheet.set_row((stock_count_row)+3, 15, merge_format_2a) #
+            tse_spreadsheet.set_row((stock_count_row)+4, 15, merge_format_2)  #
+            tse_spreadsheet.set_row((stock_count_row)+5, 15, merge_format_2a) #
+            tse_spreadsheet.set_row((stock_count_row)+6, 15, merge_format_2)  #
+            tse_spreadsheet.merge_range((stock_count_row)+1,0,(stock_count_row)+6,0,stock_name, merge_format_2)
 
-        tse_spreadsheet.write((stock_count<<2)+1, 1, u"營收")
-        tse_spreadsheet.write((stock_count<<2)+2, 1, u"毛利")
-        tse_spreadsheet.write((stock_count<<2)+3, 1, u"營益")
-        tse_spreadsheet.write((stock_count<<2)+4, 1, u"EPS")
+        tse_spreadsheet.write((stock_count_row)+1, 1, u"營收")
+        tse_spreadsheet.write((stock_count_row)+2, 1, u"毛利")
+        tse_spreadsheet.write((stock_count_row)+3, 1, u"毛利率")
+        tse_spreadsheet.write((stock_count_row)+4, 1, u"營益")
+        tse_spreadsheet.write((stock_count_row)+5, 1, u"營益率")
+        tse_spreadsheet.write((stock_count_row)+6, 1, u"EPS")
 
         merge_data(tse_spreadsheet, f_name, today.year-TOTAL_YEARS+1, stock_count)
         stock_count += 1
@@ -373,28 +405,35 @@ def main():
                 stock_name = u'%s(%s)'%(row[0].decode('utf-8').strip(" "),f_short_name)
                 break
         # alternative color for stock ID
+        stock_count_row = stock_count * 6
         color_format = spreadbook.add_format()
         if (stock_count % 2) == 0:
             color_format.set_bg_color('#777777')
             color_format.set_border(1) 
-            otc_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_1)  #
-            otc_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_1)  #
-            otc_spreadsheet.set_row((stock_count<<2)+3, 15, merge_format_1)  #
-            otc_spreadsheet.set_row((stock_count<<2)+4, 15, merge_format_1)  #
-            otc_spreadsheet.merge_range((stock_count<<2)+1,0,(stock_count<<2)+4,0,stock_name, merge_format_1)
+            otc_spreadsheet.set_row((stock_count_row)+1, 15, merge_format_1)  #
+            otc_spreadsheet.set_row((stock_count_row)+2, 15, merge_format_1)  #
+            otc_spreadsheet.set_row((stock_count_row)+3, 15, merge_format_1a) #
+            otc_spreadsheet.set_row((stock_count_row)+4, 15, merge_format_1)  #
+            otc_spreadsheet.set_row((stock_count_row)+5, 15, merge_format_1a) #
+            otc_spreadsheet.set_row((stock_count_row)+6, 15, merge_format_1)  #
+            otc_spreadsheet.merge_range((stock_count_row)+1,0,(stock_count_row)+6,0,stock_name, merge_format_1)
         else:
             color_format.set_bg_color('#cccccc')
             color_format.set_border(1) 
-            otc_spreadsheet.set_row((stock_count<<2)+1, 15, merge_format_2)  #
-            otc_spreadsheet.set_row((stock_count<<2)+2, 15, merge_format_2)  #
-            otc_spreadsheet.set_row((stock_count<<2)+3, 15, merge_format_2)  #
-            otc_spreadsheet.set_row((stock_count<<2)+4, 15, merge_format_2)  #
-            otc_spreadsheet.merge_range((stock_count<<2)+1,0,(stock_count<<2)+4,0,stock_name, merge_format_2)
+            otc_spreadsheet.set_row((stock_count_row)+1, 15, merge_format_2)  #
+            otc_spreadsheet.set_row((stock_count_row)+2, 15, merge_format_2)  #
+            otc_spreadsheet.set_row((stock_count_row)+3, 15, merge_format_2a) #
+            otc_spreadsheet.set_row((stock_count_row)+4, 15, merge_format_2)  #
+            otc_spreadsheet.set_row((stock_count_row)+5, 15, merge_format_2a) #
+            otc_spreadsheet.set_row((stock_count_row)+6, 15, merge_format_2)  #
+            otc_spreadsheet.merge_range((stock_count_row)+1,0,(stock_count_row)+6,0,stock_name, merge_format_2)
 
-        otc_spreadsheet.write((stock_count<<2)+1, 1, u"營收")
-        otc_spreadsheet.write((stock_count<<2)+2, 1, u"毛利")
-        otc_spreadsheet.write((stock_count<<2)+3, 1, u"營益")
-        otc_spreadsheet.write((stock_count<<2)+4, 1, u"EPS")
+        otc_spreadsheet.write((stock_count_row)+1, 1, u"營收")
+        otc_spreadsheet.write((stock_count_row)+2, 1, u"毛利")
+        otc_spreadsheet.write((stock_count_row)+3, 1, u"毛利率")
+        otc_spreadsheet.write((stock_count_row)+4, 1, u"營益")
+        otc_spreadsheet.write((stock_count_row)+5, 1, u"營益率")
+        otc_spreadsheet.write((stock_count_row)+6, 1, u"EPS")
 
         merge_data(otc_spreadsheet, f_name, today.year-TOTAL_YEARS+1, stock_count)
         stock_count += 1
