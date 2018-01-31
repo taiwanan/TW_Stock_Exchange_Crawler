@@ -364,6 +364,7 @@ def main():
                     finally:
                         #first_day -= timedelta(1) #from now to past
                         last_day += timedelta(1) #from past till now
+			time.sleep(10)  # prevent blocked by remote server
         elif len(args.day) == 3:
             # update to specific day: python fetch_tse.py tse year mm dd
             crawler.get_data(data_type, first_day.year, first_day.month, first_day.day)
