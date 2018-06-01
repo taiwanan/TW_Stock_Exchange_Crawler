@@ -7,3 +7,4 @@ pip install requests
 pip install lxml
 pip install xlsxwriter
 pip install openpyxl
+pip install numpy
