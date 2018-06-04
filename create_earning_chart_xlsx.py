@@ -136,7 +136,7 @@ def chart_trend(spreadbook, worksheet, start_year, stock_count_row):
 
     ## chart characteristic 
     #line_chart.set_title({'name': u'損益表 '})
-    line_chart.set_size({'width': 530, 'height': 145})
+    line_chart.set_size({'width': 510, 'height': 145})
     line_chart.set_legend({'position': 'right'}) #圖例註釋
     line_chart.set_y_axis({ 
         'name': u'(百萬)',
@@ -149,20 +149,20 @@ def chart_trend(spreadbook, worksheet, start_year, stock_count_row):
     })
     bar_chart.set_style(13)
     bar_yoy_p_chart.set_y_axis({'num_format': '0%'})
-    bar_yoy_p_chart.set_size({'width': 360, 'height': 145})
-    bar_yoy_p_chart.set_title({'name': u'毛利率', 'overlay': True,})
+    bar_yoy_p_chart.set_size({'width': 315, 'height': 145})
+    #bar_yoy_p_chart.set_title({'name': u'毛利率', 'overlay': True,})
     bar_yoy_op_chart.set_y_axis({'num_format': '0%'})
-    bar_yoy_op_chart.set_size({'width': 360, 'height': 145})
-    bar_yoy_op_chart.set_title({'name': u'營益率', 'overlay': True,})
+    bar_yoy_op_chart.set_size({'width': 315, 'height': 145})
+    #bar_yoy_op_chart.set_title({'name': u'營益率', 'overlay': True,})
     bar_yoy_eps_chart.set_y_axis({'num_format': '0.00'})
-    bar_yoy_eps_chart.set_size({'width': 360, 'height': 145})
-    bar_yoy_eps_chart.set_title({'name': 'EPS', 'overlay': True,})
+    bar_yoy_eps_chart.set_size({'width': 315, 'height': 145})
+    #bar_yoy_eps_chart.set_title({'name': 'EPS', 'overlay': True,})
 
     line_chart.combine(bar_chart)
-    worksheet.insert_chart('T%s'%(stock_count_row+2), line_chart) #display chart at specific location
-    worksheet.insert_chart('AC%s'%(stock_count_row+2), bar_yoy_p_chart) #display chart at specific location
-    worksheet.insert_chart('AI%s'%(stock_count_row+2), bar_yoy_op_chart) #display chart at specific location
-    worksheet.insert_chart('AO%s'%(stock_count_row+2), bar_yoy_eps_chart) #display chart at specific location
+    worksheet.insert_chart(stock_count_row+1, TOTAL_YEARS*4+3, line_chart) #display chart at specific location
+    worksheet.insert_chart(stock_count_row+1, TOTAL_YEARS*4+11, bar_yoy_p_chart) #display chart at specific location
+    worksheet.insert_chart(stock_count_row+1, TOTAL_YEARS*4+16, bar_yoy_op_chart) #display chart at specific location
+    worksheet.insert_chart(stock_count_row+1, TOTAL_YEARS*4+21, bar_yoy_eps_chart) #display chart at specific location
 
 def merge_data(worksheet, worksheet_yoy, f_name, start_year, start_row):
 
@@ -374,28 +374,36 @@ def main():
 
     # open worksheet
     tse_spreadsheet = spreadbook.add_worksheet('TSE')
-    tse_spreadsheet.freeze_panes(1, 0)
+    tse_spreadsheet.freeze_panes(1, 1)
     tse_spreadsheet.set_row(0, 15, title_format) # title format
     tse_spreadsheet.write_row('A1', row_titles, title_format)
     tse_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9 
     tse_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
+    tse_spreadsheet.merge_range(0,TOTAL_YEARS*4+3,0,TOTAL_YEARS*4+10, 'QoQ chart', title_format)
+    tse_spreadsheet.merge_range(0,TOTAL_YEARS*4+11,0,TOTAL_YEARS*4+15, u'毛利率', title_format)
+    tse_spreadsheet.merge_range(0,TOTAL_YEARS*4+16,0,TOTAL_YEARS*4+20, u'營益率', title_format)
+    tse_spreadsheet.merge_range(0,TOTAL_YEARS*4+21,0,TOTAL_YEARS*4+25, 'EPS', title_format)
 
     tse_yoy_spreadsheet = spreadbook.add_worksheet('TSE-YOY')
-    tse_yoy_spreadsheet.freeze_panes(1, 0)
+    tse_yoy_spreadsheet.freeze_panes(1, 1)
     tse_yoy_spreadsheet.set_row(0, 15, title_format) # title format
     tse_yoy_spreadsheet.write_row('A1', row_titles_yoy, title_format)
     tse_yoy_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9
     tse_yoy_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
 
     otc_spreadsheet = spreadbook.add_worksheet('OTC')
-    otc_spreadsheet.freeze_panes(1, 0)
+    otc_spreadsheet.freeze_panes(1, 1)
     otc_spreadsheet.set_row(0, 15, title_format) # title format
     otc_spreadsheet.write_row('A1', row_titles, title_format)
     otc_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9
     otc_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
+    otc_spreadsheet.merge_range(0,TOTAL_YEARS*4+3,0,TOTAL_YEARS*4+10, 'QoQ chart', title_format)
+    otc_spreadsheet.merge_range(0,TOTAL_YEARS*4+11,0,TOTAL_YEARS*4+15, u'毛利率', title_format)
+    otc_spreadsheet.merge_range(0,TOTAL_YEARS*4+16,0,TOTAL_YEARS*4+20, u'營益率', title_format)
+    otc_spreadsheet.merge_range(0,TOTAL_YEARS*4+21,0,TOTAL_YEARS*4+25, 'EPS', title_format)
 
     otc_yoy_spreadsheet = spreadbook.add_worksheet('OTC-YOY')
-    otc_yoy_spreadsheet.freeze_panes(1, 0)
+    otc_yoy_spreadsheet.freeze_panes(1, 1)
     otc_yoy_spreadsheet.set_row(0, 15, title_format) # title format
     otc_yoy_spreadsheet.write_row('A1', row_titles_yoy, title_format)
     otc_yoy_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9
