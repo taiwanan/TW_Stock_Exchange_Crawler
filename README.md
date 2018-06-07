@@ -16,7 +16,7 @@
 
 
 ### 增加`每月營收`擷取
-2017/07/10 - add fetch_income.py
+2018/06/7 - add fetch_income.py
 
 抓取上市及上櫃每月營收資料並儲存在 monthly_raw_data</br> 
 </br>
@@ -71,17 +71,15 @@ ex. pythong fetch_earnings.py 2013 1
 	* excel_vba_tools: extract vba bin file from excel (.xlsm)
 		vba_extract.py xxx.xlsm
 
-## Usage
-###  get RAW data
-產生空白表格( 產生 tse_raw_data\ 及 otc_raw_data\ ): 
+Step 1.產生空白表格(離今天最近的工作日產生): 
 ```
 python fetch_tse.py -i
 ```
-更新TSE_RAW_DATA至今天: 
+Step 2.更新資料至今天: 
 ```
 python fetch_tse.py
 ```
-###  create buy/sell-pressure table
+step 3.產生買賣壓力表:
 單一檔案:
 ```
 python create_spreadtable_xlsm.py
