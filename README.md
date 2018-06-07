@@ -10,8 +10,25 @@
 
 抓取大盤指數並產生波段動能圖: fetch_twse_idx.py
 
-抓取上市/櫃財報: fetch_earning.py YYYY Q</br>:w
+抓取上市/櫃每月營收: fetch_income.py YYYY MM</br>
+抓取上市/櫃財報: fetch_earning.py YYYY Q</br>
 產生上市櫃財報分析表: create_earning_chart_xlsm.py (三年期間 營收, 毛利, 營益)
+
+
+### 增加`每月營收`擷取
+2017/07/10 - add fetch_income.py
+
+抓取上市及上櫃每月營收資料並儲存在 monthly_raw_data</br> 
+</br>
+step1: 產生表格 (離今天最近的工作日產生) 
+```
+python fetch_income.py -i
+```
+step2: 指定的 年份+月份, 若無指定則自動更新至最新
+```
+python fetch_income.py YYYY MM
+ex. pythong fetch_income.py 2018 2
+```
 
 ### 增加`TWSE波段動能圖`
 2017/07/10 - add fetch_twse_idx.py
