@@ -8,3 +8,5 @@ pip install lxml
 pip install xlsxwriter
 pip install openpyxl
 pip install numpy
+pip install testresources
+pip install python-dateutil
