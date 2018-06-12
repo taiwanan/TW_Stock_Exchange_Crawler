@@ -9,9 +9,9 @@ Attribute UpdateTableValues.VB_ProcData.VB_Invoke_Func = " \n14"
     'MsgBox ("Updating table values...")
     Application.DisplayStatusBar = True
     Dim mFile As String
-       mFile = Dir(WorkingPath & "\tse_pressure_data\*.xlsx")
+       mFile = Dir(WorkingPath & "\trading_pressure_data\*.xlsx")
        Do While mFile <> ""
-          Workbooks.Open Filename:=WorkingPath & "\tse_pressure_data\" & mFile
+          Workbooks.Open Filename:=WorkingPath & "\trading_pressure_data\" & mFile
           Application.StatusBar = "Loading files:" & mFile & "..."
           mFile = Dir()
           ActiveWindow.Close (False)
