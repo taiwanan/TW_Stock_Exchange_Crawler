@@ -30,14 +30,6 @@ step2: 指定的 年份+月份, 若無指定則自動更新至最新
 python fetch_income.py YYYY MM
 ex. pythong fetch_income.py 2018 2
 ```
-
-### 增加`TWSE波段動能圖`
-2017/07/10 - add fetch_twse_idx.py
-
-自動更新台股指數(TWSE_IDX.csv)並產生往前推一年的台股指數波段動能圖(twse_momentum_table.xlsx)
-
-參考文件: documents/TWSE_Momentum_intro (from: [E大](http://ebigmoney.pixnet.net/blog))
-
 ### 增加`財報損益表`擷取
 
 2016/07/22 - add fetch_earnings.py
@@ -53,27 +45,24 @@ step2: 指定的 年份+季度
 python fetch_earnings.py YYYY Q
 ex. pythong fetch_earnings.py 2013 1
 ```
+
+### 增加`TWSE波段動能圖`
+2017/07/10 - add fetch_twse_idx.py
+
+自動更新台股指數(TWSE_IDX.csv)並產生往前推一年的台股指數波段動能圖(twse_momentum_table.xlsx)
+
+參考文件: documents/TWSE_Momentum_intro (from: [E大](http://ebigmoney.pixnet.net/blog))
+
+
 ### 增加`買賣壓力表`分析 ( [E大](http://ebigmoney.pixnet.net/blog/post/190015890) )
+2018/06/12 - add fetch_trading.py:
+抓取個股盤後交易資料後(fetch_trading.py), 自動產生買賣壓力圖表(create_trading_pressure_table.py)
 
-2018/06/12 - Modify from crawl.py to fetch_trading.py:
+raw data 資料夾: "tse_trading_raw_data" & "otc_trading_raw_data"
+個股買賣壓力資料夾: trading_pressure_data
+表格檔案: trading_pressure_table.xlsm
 
-	* https://github.com/taiwanan/TW_Stock_Exchange_Crawler.git
 
-	* modify crawl.py to fetch_trading.py
-		1. initial an uniform table with headers: fetch_trading.py -i
-		2. crawling data saved as "tse_trading_raw_data" & "otc_trading_raw_data"
-		3. default is updating TSE/OTC data up-to-date
-		4. rm_warrants.sh to remove warrants from xxx_raw_data
-
-	* generate buy/sell pressure table in:
-		1. one table: create_table_xlsx.py
-		2. spread table: create_trading_pressure_table.py
-		```
-        python -u fetch_trading.py -t
-        ```
-
-	* excel_vba_tools: extract vba bin file from excel (.xlsm)
-		vba_extract.py xxx.xlsm
 
 Step 1.產生空白表格(離今天最近的工作日產生): 
 ```
@@ -82,6 +71,17 @@ python fetch_trading.py -i
 Step 2.更新資料至今天: 
 ```
 python fetch_trading.py
+```
+<note>
+	
+產生圖表
+```
+python -u fetch_trading.py -t
+```
+產生 VB script BIN file:
+ - excel_vba_tools: extract vba BIN file from excel (.xlsm)
+```
+python vba_extract.py xxx.xlsm
 ```
 
 ## Contact Info.
