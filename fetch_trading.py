@@ -292,7 +292,7 @@ class Crawler():
                     cw.writerow(headers)
                     f.close()
                     process_count += 1
-                    print 'add new %s stock [%s] %s \r'%(url_name, stock_id, stock_name)
+                    print 'add new %s stock [%s] %s \r'%(url_name, stock_id, stock_name.encode('utf-8'))
 
         print ''
         #print 'Check new stock is not warrants type... \r'
@@ -341,7 +341,7 @@ def main():
     parser.add_argument('-t', '--table', action='store_true',
         help='create trading pressure table')
     parser.add_argument('-i', '--init', action='store_true',
-        help='init table headers')
+        help='init raw data table headers')
 
     args = parser.parse_args()
 

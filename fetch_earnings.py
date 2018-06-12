@@ -297,13 +297,72 @@ class Crawler():
         print "done!"        
         os.system('sh rm_earnings.sh')
 
+    def check_new_stock(self, year, month, day):
+        process_count = 0
+        date_str = '{0}/{1:02d}/{2:02d}'.format(year,month,day)
+        date_str_w = date_str.replace("/","")   #strip '/' in date_str
+        date_str_c = str((int(date_str[0:4])-1911))+date_str[4:]    #transfer to Taiwan year
+
+        headers = [ u'季度'.encode('utf-8'), u'營收'.encode('utf-8'), u'營業成本'.encode('utf-8'), 
+                    u'營業毛利'.encode('utf-8'), u'營業費用'.encode('utf-8'), u'營業利益'.encode('utf-8'), 
+                    u'業外收入'.encode('utf-8'), u'淨利'.encode('utf-8'), u'每股盈餘'.encode('utf-8'),
+                    u'股本'.encode('utf-8')]
+
+
+        url_tse = 'http://www.twse.com.tw/exchangeReport/MI_INDEX?response=html&date={}&type={}'.format(date_str_w, 'ALLBUT0999')
+        url_otc = 'http://www.tpex.org.tw/web/stock/aftertrading/otc_quotes_no1430/stk_wn1430_result.php?l=zh-tw&o=htm&d={}&se=EW&s=0,asc,0'.format(date_str_c)
+
+        xpath_tse = '//table[5]/tbody/tr'
+        xpath_otc = '//table[1]/tbody/tr'
+
+        fetch_url       = [url_tse, url_otc]
+        fetch_name      = ['TSE', 'OTC']
+        xpath_set_t     = [xpath_tse, xpath_otc]
+        raw_folder_list = [self.prefix_tse, self.prefix_otc]
+
+        for url, url_name, xpath_set, raw_folder_saved in zip(fetch_url, fetch_name, xpath_set_t, raw_folder_list):
+            ## create table
+            # Get html page and parse as tree
+            page = requests.get(url)
+
+            if not page.ok:
+                logging.error("Can not get {} data at {}".format(url_name, date_str_w))
+                return
+
+            # Parse page
+            tree = html.fromstring(page.text)
+
+            for tr in tree.xpath(xpath_set):
+                tds = tr.xpath('td/text()')
+
+                stock_id = tds[0].strip()
+                stock_name = tds[1]
+                stock_info = [stock_name.encode('utf-8'),'\t%s'%(stock_id)]
+
+                if (stock_id[0] == '0' or stock_id[:2] =='91' or len(stock_id) != 4):
+                    continue
+
+                if not (os.path.isfile('{}/{}.csv'.format(raw_folder_saved, stock_id))):
+                    f = file('{}/{}.csv'.format(raw_folder_saved, stock_id), 'wb')
+                    f.write(codecs.BOM_UTF8)
+
+                    cw = csv.writer(f, lineterminator='\r\n')
+                    cw.writerow(stock_info)
+                    cw.writerow(headers)
+                    f.close()
+                    process_count += 1
+                    print 'add new %s stock [%s] %s \r'%(url_name, stock_id, stock_name.encode('utf-8'))
+
+        print ''
+        os.system('sh rm_earnings.sh')
+
     def get_data(self, year, quarter):
 
         global CRAWLING_ERR
 
         process_count = 0
         print "crawling TSE earnings data @ " + str(year) + ' Q' + str(quarter) + "..."
-        for filename in glob.glob("./{}/*.csv".format(self.prefix_tse)):
+        for filename in sorted(glob.glob("./{}/*.csv".format(self.prefix_tse))):
             (f_path, f_name) = os.path.split(filename)
             (f_short_name, f_extension) = os.path.splitext(f_name)
             self._get_earning_data('C', 'tse', f_short_name, year, quarter)
@@ -312,7 +371,7 @@ class Crawler():
 
         process_count = 0
         print "crawling OTC earnings data @ " + str(year) + ' Q' + str(quarter) + "..."
-        for filename in glob.glob("./{}/*.csv".format(self.prefix_otc)):
+        for filename in sorted(glob.glob("./{}/*.csv".format(self.prefix_otc))):
             (f_path, f_name) = os.path.split(filename)
             (f_short_name, f_extension) = os.path.splitext(f_name)
             self._get_earning_data('C', 'otc', f_short_name, year, quarter)
@@ -383,8 +442,22 @@ def main():
             crawler.table_init(date.year, date.month, date.day)
         
     elif len(args.date) == 2:
+
+        print 'Checking, is there a new stock...'
+        first_day = datetime.today()
+        weekend = first_day.weekday()
+        if weekend < 5:
+            date = first_day
+        else:
+            date = first_day - timedelta(weekend % 4)
+        crawler.check_new_stock(date.year, date.month, date.day)
+        print ''
+
         # update to specific day: python fetch_tse.py YEAR Q 
         crawler.get_data(earnings_year, earnings_quarter)
+
+        print 'Creating earnings chart ...'
+        os.system('python -u create_earning_chart_xlsx.py')
 
 if __name__ == '__main__':
     main()

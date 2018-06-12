@@ -219,7 +219,7 @@ class Crawler():
                     cw.writerow(headers)
                     f.close()
                     process_count += 1
-                    print 'add new %s stock [%s] %s \r'%(url_name, stock_id, stock_name)
+                    print 'add new %s stock [%s] %s \r'%(url_name, stock_id, stock_name.encode('utf-8'))
 
         print ''
         print 'Check new stock is not warrants or ETF type... \r'

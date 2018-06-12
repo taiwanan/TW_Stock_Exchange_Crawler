@@ -301,7 +301,7 @@ def main():
 
     for stock_type, raw_data, summary_sheet, total_files in zip(stock_type_list, RAW_DATA_FOLDER, summary_sheet_list, total_files_list):
         #create stocks worksheet
-        for filename in glob.glob("./{}/*.csv".format(raw_data)):
+        for filename in sorted(glob.glob("./{}/*.csv".format(raw_data))):
             (f_path, f_name) = os.path.split(filename)
             (f_short_name, f_extension) = os.path.splitext(f_name)
  

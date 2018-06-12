@@ -5,14 +5,15 @@
 
 ## Note
 ### 檔案說明
-抓取上市個股: fetch_tse.py</br>
-產生上市買賣壓力分析表: create_spreadtable_xlsm.py
+抓取上市個股成交資料: fetch_trading.py</br>
+產生上市買賣壓力分析表: create_trading_pressure_table.py
 
 抓取大盤指數並產生波段動能圖: fetch_twse_idx.py
 
-抓取上市/櫃每月營收: fetch_income.py YYYY MM</br>
 抓取上市/櫃財報: fetch_earning.py YYYY Q</br>
-產生上市櫃財報分析表: create_earning_chart_xlsm.py (三年期間 營收, 毛利, 營益)
+產生上市櫃財報分析表: create_earning_chart_xlsm.py (xx 年期間 營收, 毛利, 營益)
+
+抓取上市/櫃每月營收: fetch_income.py YYYY MM</br>
 
 
 ### 增加`每月營收`擷取
@@ -54,39 +55,33 @@ ex. pythong fetch_earnings.py 2013 1
 ```
 ### 增加`買賣壓力表`分析 ( [E大](http://ebigmoney.pixnet.net/blog/post/190015890) )
 
-2016/05/30 - Modify from crawl.py to fetch_tse.py:
+2018/06/12 - Modify from crawl.py to fetch_trading.py:
 
 	* https://github.com/taiwanan/TW_Stock_Exchange_Crawler.git
 
-	* modify crawl.py to fetch_tse.py
-		1. initial an uniform table with headers: fetch_tse.py -i
-		2. crawling data saved as "tse_raw_data" & "otc_raw_data"
-		3. default is updating TSE data only up-to-date
+	* modify crawl.py to fetch_trading.py
+		1. initial an uniform table with headers: fetch_trading.py -i
+		2. crawling data saved as "tse_trading_raw_data" & "otc_trading_raw_data"
+		3. default is updating TSE/OTC data up-to-date
 		4. rm_warrants.sh to remove warrants from xxx_raw_data
 
 	* generate buy/sell pressure table in:
 		1. one table: create_table_xlsx.py
-		2. spread table: create_spread_xlsm.py
+		2. spread table: create_trading_pressure_table.py
+		```
+        python -u fetch_trading.py -t
+        ```
 
 	* excel_vba_tools: extract vba bin file from excel (.xlsm)
 		vba_extract.py xxx.xlsm
 
 Step 1.產生空白表格(離今天最近的工作日產生): 
 ```
-python fetch_tse.py -i
+python fetch_trading.py -i
 ```
 Step 2.更新資料至今天: 
 ```
-python fetch_tse.py
-```
-step 3.產生買賣壓力表:
-單一檔案:
-```
-python create_spreadtable_xlsm.py
-```
-多個檔案:
-```
-python create_table_xlsx.py
+python fetch_trading.py
 ```
 
 ## Contact Info.
