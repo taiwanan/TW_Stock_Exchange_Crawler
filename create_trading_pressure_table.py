@@ -188,7 +188,7 @@ def get_last_rows_of_CSV(f_name):
     file.close()
     return rows
 
-def merge_data(worksheet, raw_data_folder, f_name):
+def merge_data(worksheet, stock_type, raw_data_folder, f_name):
     last_row = 0
     csv_row_count = 0
     row_init = 1 
@@ -200,9 +200,14 @@ def merge_data(worksheet, raw_data_folder, f_name):
     for row in spamReader:
         count += 1
         if count > 2:   #column 1 and 2 are headers, ignore it
-            if (row[1] != '0') and (row[2] != '---' or row[6] != '---'):
-                csv_rows_tmp.append(row)
-                last_row += 1
+            if (stock_type == 'TSE'):
+                if (row[2] != '--' or row[6] != ''):
+                    csv_rows_tmp.append(row)
+                    last_row += 1
+            elif (stock_type == 'OTC'):
+                if (row[1] != '0') and (row[2] != '---' or row[6] != '---'):
+                    csv_rows_tmp.append(row)
+                    last_row += 1
 
     if last_row < 248:
         last_row = 248
@@ -329,7 +334,7 @@ def main():
             chart_def(spreadbook, spreadsheet, f_short_name)
  
             # merge data
-            merge_data(spreadsheet, raw_data, f_name)
+            merge_data(spreadsheet, stock_type, raw_data, f_name)
  
             # write and close
             spreadbook.close()
