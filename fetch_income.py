@@ -351,6 +351,8 @@ def main():
                         last_day += relativedelta(months=1) #from past till now
 			time.sleep(10)  # prevent blocked by remote server
                 print 'done'
+                print ''
+                os.system('python -u create_monthly_chart.py')
         elif len(args.day) == 2:
             # update to specific day: python fetch_tse.py tse year mm dd
             crawler.get_data(first_day.year, first_day.month)
