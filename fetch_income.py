@@ -52,6 +52,7 @@ class Crawler():
         #date_str_w = date_str.replace("/","")   #strip '/' in date_str
         date_str_c_year = str((int(date_str_w[0:4])-1911))              #transfer to Taiwan year
         date_str_c_month = str('{:01d}'.format(int(date_str_w[5:7])))   #transfer to Taiwan year
+        stock_have_data=[]
 
 
         url_0 = 'http://mops.twse.com.tw/nas/t21/sii/t21sc03_{}_{}_0.html'.format(date_str_c_year, date_str_c_month) # 國內上市
@@ -67,6 +68,8 @@ class Crawler():
             page = requests.get(url)
             page.encoding = 'big5'
  
+            #print page.text.encode('utf-8')
+
             if not page.ok:
                 logging.error("Can not get {} data at {}".format(url_name, date_str_w))
                 return
@@ -100,13 +103,31 @@ class Crawler():
                         tds[9],     # 累計YOY(%)
                         ])
                     row.append(tds[10].encode('utf-8')) # 備註
+
  
                     if (os.path.isfile('{}/{}.csv'.format(self.prefix_monthly, stock_id))):
                         self._monthly_record(tds[0].strip(), row)
+                        stock_have_data.append(stock_id)
                         process_count += 1
                         self.process(date_str_w, self.monthly_files, process_count)
 
+	    time.sleep(5)  # prevent blocked by remote server
         print ''
+
+        # 未公佈月營收個股
+        for filename in sorted(glob.glob("./{}/*.csv".format(self.prefix_monthly))):
+            (f_path, f_name) = os.path.split(filename)
+            (f_short_name, f_extension) = os.path.splitext(f_name)
+
+            if f_short_name not in stock_have_data:
+                with open('{}/{}.csv'.format(self.prefix_monthly, f_short_name), 'rb') as file:
+                    reader = csv.reader(file)
+                    for row in reader:
+                        row[0] = ''.join(row[0].split()) # remove spaces
+                        stock_no = '[{:>6}]'.format(f_short_name) # right-aligned with 6 spaces
+                        stock_name = u'查無 {} 營收資料: {:<8} {}'.format(date_str_w, stock_no, row[0].decode('utf-8'))
+                        print stock_name.encode('utf-8')
+                        break
 
     def table_init(self, year, month, day):
         process_count = 0
@@ -338,7 +359,7 @@ def main():
                 max_error = 5
                 error_times = 0
                 last_day = last_day + relativedelta(months=1)
-                while error_times < max_error and last_day <= first_day:  #from past till now
+                while error_times < max_error and last_day <= update_data_to:  #from past till now
                     try:
                         crawler.get_data(last_day.year, last_day.month) #from past till now
                         error_times = 0
