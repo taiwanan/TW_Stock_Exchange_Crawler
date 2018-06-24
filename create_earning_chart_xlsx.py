@@ -374,7 +374,7 @@ def main():
 
     # open worksheet
     tse_spreadsheet = spreadbook.add_worksheet('TSE')
-    tse_spreadsheet.freeze_panes(1, 1)
+    tse_spreadsheet.freeze_panes(1, 2)
     tse_spreadsheet.set_row(0, 15, title_format) # title format
     tse_spreadsheet.write_row('A1', row_titles, title_format)
     tse_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9 
@@ -385,14 +385,14 @@ def main():
     tse_spreadsheet.merge_range(0,TOTAL_YEARS*4+21,0,TOTAL_YEARS*4+25, 'EPS', title_format)
 
     tse_yoy_spreadsheet = spreadbook.add_worksheet('TSE-YOY')
-    tse_yoy_spreadsheet.freeze_panes(1, 1)
+    tse_yoy_spreadsheet.freeze_panes(1, 2)
     tse_yoy_spreadsheet.set_row(0, 15, title_format) # title format
     tse_yoy_spreadsheet.write_row('A1', row_titles_yoy, title_format)
     tse_yoy_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9
     tse_yoy_spreadsheet.set_column(2, TOTAL_YEARS*4+1, 11, number_format) # C ~ : set column width to 11 and number format #.##
 
     otc_spreadsheet = spreadbook.add_worksheet('OTC')
-    otc_spreadsheet.freeze_panes(1, 1)
+    otc_spreadsheet.freeze_panes(1, 2)
     otc_spreadsheet.set_row(0, 15, title_format) # title format
     otc_spreadsheet.write_row('A1', row_titles, title_format)
     otc_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9
@@ -403,7 +403,7 @@ def main():
     otc_spreadsheet.merge_range(0,TOTAL_YEARS*4+21,0,TOTAL_YEARS*4+25, 'EPS', title_format)
 
     otc_yoy_spreadsheet = spreadbook.add_worksheet('OTC-YOY')
-    otc_yoy_spreadsheet.freeze_panes(1, 1)
+    otc_yoy_spreadsheet.freeze_panes(1, 2)
     otc_yoy_spreadsheet.set_row(0, 15, title_format) # title format
     otc_yoy_spreadsheet.write_row('A1', row_titles_yoy, title_format)
     otc_yoy_spreadsheet.set_column(0, 1, 9) # A ~ B: set column width to 9

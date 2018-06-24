@@ -272,6 +272,7 @@ def main():
 
     #create summary worksheet
     tse_summary_sheet = summarybook.add_worksheet('TSE')
+    tse_summary_sheet.freeze_panes(2, 1)
     tse_summary_sheet.merge_range('A1:L1', "", format)
     tse_summary_sheet.set_column(0, 0, 16, link_format) # set column width 
     tse_summary_sheet.set_row('B2,L2', None, format)
@@ -282,6 +283,7 @@ def main():
                                         'criteria': '<=', 'value':    0.6, 'format': summary_format})
 
     otc_summary_sheet = summarybook.add_worksheet('OTC')
+    otc_summary_sheet.freeze_panes(2, 1)
     otc_summary_sheet.merge_range('A1:L1', "", format)
     otc_summary_sheet.set_column(0, 0, 16, link_format) # set column width 
     otc_summary_sheet.set_row('B2,L2', None, format)
