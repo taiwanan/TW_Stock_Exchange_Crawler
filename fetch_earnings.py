@@ -400,6 +400,7 @@ def main():
     parser = argparse.ArgumentParser(description='Crawl TSE/OTC earnings data at assigned date')
     parser.add_argument('date', type=int, nargs='*', help='assigned date (format: YYYY Q)')
     parser.add_argument('-i', '--init', action='store_true', help='init table headers (-i YYYY MM DD)')
+    parser.add_argument('-s', '--skip', action='store_true', help='skip checking new stock')
 
     args = parser.parse_args()
 
@@ -443,15 +444,16 @@ def main():
         
     elif len(args.date) == 2:
 
-        print 'Checking, is there a new stock...'
-        first_day = datetime.today()
-        weekend = first_day.weekday()
-        if weekend < 5:
-            date = first_day
-        else:
-            date = first_day - timedelta(weekend % 4)
-        crawler.check_new_stock(date.year, date.month, date.day)
-        print ''
+        if (args.skip == False):
+            print 'Checking, is there a new stock...'
+            first_day = datetime.today()
+            weekend = first_day.weekday()
+            if weekend < 5:
+                date = first_day
+            else:
+                date = first_day - timedelta(weekend % 4)
+            crawler.check_new_stock(date.year, date.month, date.day)
+            print ''
 
         # update to specific day: python fetch_tse.py YEAR Q 
         crawler.get_data(earnings_year, earnings_quarter)

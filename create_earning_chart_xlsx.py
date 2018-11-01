@@ -48,7 +48,7 @@ def formula(worksheet):
             # 5-30MA
             worksheet.write_formula(row, col_init+8, "%s-%s"%(col_G, col_H))
  
-def chart_trend(spreadbook, worksheet, start_year, stock_count_row):
+def chart_trend(market, spreadbook, worksheet, start_year, stock_count_row):
 
     # chart
     line_chart = spreadbook.add_chart({'type': 'line'})
@@ -70,29 +70,29 @@ def chart_trend(spreadbook, worksheet, start_year, stock_count_row):
     ## data item
     # 營收
     line_chart.add_series({
-        'name':       '=%s!$B2'%('TSE'),
-        'categories': '=%s!$C$1:$%c$1'%('TSE', last_col_chr),
-        'values':     '=%s!$C$%s:$%c$%s'%('TSE',revenue, last_col_chr ,revenue),
+        'name':       '=%s!$B2'%(market),
+        'categories': '=%s!$C$1:$%c$1'%(market, last_col_chr),
+        'values':     '=%s!$C$%s:$%c$%s'%(market,revenue, last_col_chr ,revenue),
         'marker':     {'type': 'diamond', 'size': 3},
     })
     # 毛利
     line_chart.add_series({
-        'name':       '=%s!$B3'%('TSE'),
-        'categories': '=%s!$C$1:$%c$1'%('TSE', last_col_chr),
-        'values':     '=%s!$C$%s:$%c$%s'%('TSE',profit, last_col_chr, profit),
+        'name':       '=%s!$B3'%(market),
+        'categories': '=%s!$C$1:$%c$1'%(market, last_col_chr),
+        'values':     '=%s!$C$%s:$%c$%s'%(market,profit, last_col_chr, profit),
     })
     # 營益 
     line_chart.add_series({
-        'name':       '=%s!$B5'%('TSE'),
-        'categories': '=%s!$C$1:$%c$1'%('TSE', last_col_chr),
-        'values':     '=%s!$C$%s:$%c$%s'%('TSE',o_profit, last_col_chr, o_profit),
+        'name':       '=%s!$B5'%(market),
+        'categories': '=%s!$C$1:$%c$1'%(market, last_col_chr),
+        'values':     '=%s!$C$%s:$%c$%s'%(market,o_profit, last_col_chr, o_profit),
     })
 
     # EPS
     bar_chart.add_series({
-        'name':       '=%s!$B7'%('TSE'),
-        'categories': '=%s!$C$1:$%c$1'%('TSE', last_col_chr),
-        'values':     '=%s!$C$%s:$%c$%s'%('TSE',eps , last_col_chr, eps),
+        'name':       '=%s!$B7'%(market),
+        'categories': '=%s!$C$1:$%c$1'%(market, last_col_chr),
+        'values':     '=%s!$C$%s:$%c$%s'%(market,eps , last_col_chr, eps),
         'y2_axis':    True,
     })
 
@@ -118,19 +118,19 @@ def chart_trend(spreadbook, worksheet, start_year, stock_count_row):
         bar_yoy_p_chart.add_series({
             'name':       '%s'%(start_year+q-1),
             'categories': '={"Q1","Q2","Q3","Q4"}',
-            'values':     '=%s!$%c$%s:$%c$%s'%('TSE',chr(ord('C')+(q-1)*4), profit_m, chr(ord('C')+(q*4-1)), profit_m),
+            'values':     '=%s!$%c$%s:$%c$%s'%(market, chr(ord('C')+(q-1)*4), profit_m, chr(ord('C')+(q*4-1)), profit_m),
         })
         # 營益率(YOY)
         bar_yoy_op_chart.add_series({
             'name':       '%s'%(start_year+q-1),
             'categories': '={"Q1","Q2","Q3","Q4"}',
-            'values':     '=%s!$%c$%s:$%c$%s'%('TSE',chr(ord('C')+(q-1)*4), o_profit_m, chr(ord('C')+(q*4-1)), o_profit_m),
+            'values':     '=%s!$%c$%s:$%c$%s'%(market, chr(ord('C')+(q-1)*4), o_profit_m, chr(ord('C')+(q*4-1)), o_profit_m),
         })
         # eps (YOY)
         bar_yoy_eps_chart.add_series({
             'name':       '%s'%(start_year+q-1),
             'categories': '={"Q1","Q2","Q3","Q4"}',
-            'values':     '=%s!$%c$%s:$%c$%s'%('TSE',chr(ord('C')+(q-1)*4), eps, chr(ord('C')+(q*4-1)), eps),
+            'values':     '=%s!$%c$%s:$%c$%s'%(market, chr(ord('C')+(q-1)*4), eps, chr(ord('C')+(q*4-1)), eps),
         })
 
 
@@ -168,16 +168,19 @@ def merge_data(worksheet, worksheet_yoy, f_name, start_year, start_row):
 
     global TSE_RAW_DATA_FOLDER
     global OTC_RAW_DATA_FOLDER
-    global TOTAL_YEARS
     global Q4
 
+    QUARTER = 4
     Q4 = 0
     col_init = 2  # start to fill data at column 2
     col_init_yoy = 2  
-    col_init_yoy_num = 2  
+    col_init_yoy_num = 0
+    col_init_shift = 0  # if 1st raw data of date is after start_year
 
     count = 0
     start_to_fetch = False
+    first_raw_data_date = ['year', 'quarter']
+    start_fetch_date = [start_year, '1']
     csv_rows_tmp = []
 
     (f_short_name, f_extension) = os.path.splitext(f_name)
@@ -193,14 +196,28 @@ def merge_data(worksheet, worksheet_yoy, f_name, start_year, start_row):
         if count > 2:   #row 1 and 2 are headers, ignore it
             csv_rows_tmp.append(row)
 
+    ## data to be fetched on which date (if 1st raw-data date is after start_year)
+    first_raw_data_date = [csv_rows_tmp[0][0][:4], csv_rows_tmp[0][0][-1]]
+
+    if int(first_raw_data_date[0]) > start_year:
+        col_init_shift = (int(first_raw_data_date[0]) - start_year) * 4 + int(first_raw_data_date[1]) - 1
+        start_fetch_date[0] = first_raw_data_date[0]
+        if int(first_raw_data_date[1]) > 1:
+            start_fetch_date[1] = first_raw_data_date[1]
+
+    col_init += col_init_shift
+    count = int(start_fetch_date[1]) - 1
+    col_init_yoy += int(start_fetch_date[0]) - start_year
+    col_init_yoy_num = col_init_yoy + 4 * count
+
     ## write data to worksheet
-    count = 0   # reset count
     for row in csv_rows_tmp:
-        if (row[0] == "%s Q1"%(start_year)) or (start_to_fetch == True):
+
+        if (row[0] == "%s Q%s"%(start_fetch_date[0], start_fetch_date[1])) or (start_to_fetch == True):
             start_to_fetch = True 
 
             # RAW data for Q4 means a whole year, modify to Q4 = Q4 - (Q1 ~ Q3) 
-            if (row[0] == "%s Q4"%(start_year)):
+            if (row[0] == "%s Q4"%(start_fetch_date[0])):
                 if (row[1] != 'n/a'):
                     tmp = np.array([int(row[1]),int(row[3]),int(row[5])])
                     Q4 = tmp - Q4 
@@ -208,7 +225,7 @@ def merge_data(worksheet, worksheet_yoy, f_name, start_year, start_row):
                     row[1] = Q4[0] # 營收
                     row[3] = Q4[1] # 毛利
                     row[5] = Q4[2] # 營益
-                start_year +=1
+                start_fetch_date[0] = int(start_fetch_date[0]) + 1
                 Q4 = 0
             else:
                 if (row[1] == 'n/a'):
@@ -265,7 +282,7 @@ def merge_data(worksheet, worksheet_yoy, f_name, start_year, start_row):
                 count+=1
                 col_init_yoy_num = col_init_yoy + 4 * count 
 
-            if (count >= TOTAL_YEARS):
+            if (count >= QUARTER): #  end of this year, to next year
                 count = 0
                 col_init_yoy+=1
                 col_init_yoy_num = col_init_yoy + 4 * count 
@@ -477,7 +494,7 @@ def main():
         tse_yoy_spreadsheet.write((stock_count_row)+6, 1, u"EPS")
 
         # chart 
-        chart_trend(spreadbook, tse_spreadsheet, today.year-TOTAL_YEARS+1, stock_count_row)
+        chart_trend('TSE', spreadbook, tse_spreadsheet, today.year-TOTAL_YEARS+1, stock_count_row)
 
         # merge data
         merge_data(tse_spreadsheet, tse_yoy_spreadsheet, f_name, today.year-TOTAL_YEARS+1, stock_count)
@@ -553,7 +570,7 @@ def main():
         otc_yoy_spreadsheet.write((stock_count_row)+6, 1, u"EPS")
 
         # chart 
-        chart_trend(spreadbook, otc_spreadsheet, today.year-TOTAL_YEARS+1, stock_count_row)
+        chart_trend('OTC', spreadbook, otc_spreadsheet, today.year-TOTAL_YEARS+1, stock_count_row)
 
         # merge data
         merge_data(otc_spreadsheet, otc_yoy_spreadsheet, f_name, today.year-TOTAL_YEARS+1, stock_count)
