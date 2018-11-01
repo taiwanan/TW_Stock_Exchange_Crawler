@@ -25,7 +25,10 @@ rm -f ./tse_earning_raw_data/2852.csv
 rm -f ./tse_earning_raw_data/2855.csv
 rm -f ./tse_earning_raw_data/2856.csv
 rm -f ./tse_earning_raw_data/2867.csv
+rm -f ./tse_earning_raw_data/2897.csv
+rm -f ./tse_earning_raw_data/5876.csv
 rm -f ./tse_earning_raw_data/6005.csv
+rm -f ./tse_earning_raw_data/6024.csv
 rm -f ./tse_earning_raw_data/288?.csv
 rm -f ./tse_earning_raw_data/2890.csv
 rm -f ./tse_earning_raw_data/2891.csv
@@ -34,6 +37,7 @@ rm -f ./tse_earning_raw_data/????A.csv
 rm -f ./otc_earning_raw_data/4147.csv
 rm -f ./otc_earning_raw_data/4707.csv
 rm -f ./otc_earning_raw_data/5820.csv
+rm -f ./otc_earning_raw_data/5864.csv
 rm -f ./otc_earning_raw_data/6015.csv
 rm -f ./otc_earning_raw_data/6016.csv
 rm -f ./otc_earning_raw_data/6020.csv
