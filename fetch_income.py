@@ -349,7 +349,7 @@ def main():
             last_day = datetime(int(lastyear), int(lastmonth), 15)
             if first_day.day < 15:
                 first_day -= relativedelta(months=1)
-            update_data_to = first_day-relativedelta(months=1)
+            update_data_to = (first_day-relativedelta(months=1)).replace(day=15)
 
             # start fetching data
             if last_day.strftime('%Y/%m') == first_day.strftime('%Y/%m'):
