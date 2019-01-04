@@ -16,6 +16,9 @@
 抓取上市/櫃每月營收: fetch_income.py YYYY MM</br>
 產生上市櫃每月營收分析表: create_monthly_chart.py (defaul: 24個月, 4MA)
 
+抓取上市/櫃每年成交統計資料(含EPS,淨值): fetch_yearly.py</br>
+產生上市/櫃年成交統計表: create_yearly_chart.py (default: 5年)
+
 
 ### 增加`每月營收`擷取
 2018/06/7 - add fetch_income.py
