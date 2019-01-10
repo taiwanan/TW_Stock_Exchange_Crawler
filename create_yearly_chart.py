@@ -19,15 +19,18 @@ sheet_name = 'YEARLY'
 TOTAL_FETCH_YEARS = 5 
 TOTAL_MONTHS = 24
 
-def merge_data(worksheet, f_name, date_start, date_end, start_row):
+def merge_data(worksheet, f_name, date_start, date_end, start_row, pb_value):
 
     global TRADING_YEAR_RAW_DATA_FOLDER
     global TOTAL_MONTHS
     global y_axis_min
 
+    this_year = datetime.today()
+
     start_to_fetch = False
     csv_rows_trading_tmp = []
     csv_rows_earning_tmp = []
+    csv_rows_tmp = []   # for profit, eps and net-asset in this year
     date_start_orig = date_start
 
     (f_short_name, f_extension) = os.path.splitext(f_name)
@@ -124,6 +127,62 @@ def merge_data(worksheet, f_name, date_start, date_end, start_row):
  
         col_init += 1
 
+    ## profit, eps and net-asset in this year
+    # write data to worksheet
+    col_init = 2    # start to fill data at column 2
+    quarter = 1
+    valid_data = False
+    valid_data_fetch = False
+
+
+    # what year to fetch
+    if this_year.month < 6: # Q1 earning data of this year has not ready
+        fetch_year =  str(int(this_year.year)-1) # fetch last year
+    else:
+        fetch_year = str(int(this_year.year))
+
+    # open earning data
+    try:
+        spamReader_Q = csv.reader(open('./tse_earning_raw_data/{}'.format(f_name), 'rb'), delimiter=',',quotechar='"')
+        valid_data = True
+    except:
+        try:
+            spamReader_Q = csv.reader(open('./otc_earning_raw_data/{}'.format(f_name), 'rb'), delimiter=',',quotechar='"')
+            valid_data = True
+        except:
+            valid_data = False
+            #print 'stock [{}] has no earning data, fill n/a'.format(f_name)
+
+    if valid_data == True:
+        count = 0   # reset count
+        for row in spamReader_Q:
+            count += 1
+            if count > 2:   #row 1 and 2 are headers, ignore it
+                csv_rows_tmp.append(row)
+
+        while quarter <= 4:
+            fetch_date = '{} Q{}'.format(fetch_year, quarter)
+            for row in csv_rows_tmp:
+                if (row[0] == fetch_date):
+                    if row[1] == 'n/a' or row[1] == '0' or row[3] == 'n/a' or row[3] == '0':
+                        worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+quarter-1, 'n/a') # 當季毛利
+                        worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+4+quarter-1, row[-2]) # 當季eps
+                    else:
+                        worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+quarter-1, float('%.2f'%(float(row[3])/float(row[1])*100))) # 當季毛利
+                        worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+4+quarter-1, row[-2]) # 當季eps
+                    valid_data_fetch = True
+                    break
+                else:
+                    valid_data_fetch = False
+
+            if valid_data_fetch == False:
+                worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+quarter-1, 'n/a') # 當季毛利
+                worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+4+quarter-1, 'n/a') # 當季eps
+
+            quarter += 1
+
+    worksheet.write(start_row, 5*TOTAL_FETCH_YEARS+col_init+8, pb_value) # 當季淨值
+
 def process(name, total, count):
     print "fetching data [%6s]..."%(name),
     print "%3d"%(count*100/total) + "%\r",
@@ -148,6 +207,7 @@ def main():
     global TOTAL_YEARS
     stock_count = 0
     total_years = 0
+    pb_data = []
 
     print '***** Create TSE/OTC Yearly Chart *****'
     WorkingDirectory = os.getcwd()
@@ -161,7 +221,7 @@ def main():
 
     ### create worksheet style for monthly revenue data
     # column lists
-    row_headers = [ u'最高股價',u'最低股價',u'平均股價',u'EPS',u'每股淨值(PB)',u'當季毛利率',u'當季EPS', u'本季']
+    row_headers = [ u'最高股價',u'最低股價',u'平均股價',u'EPS',u'每股淨值(PB)',u'當季毛利率',u'當季EPS']
     row_titles = [u'ID', u'Stock']
     row_titles_extra = ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4','PB']
     for columns in range(5):
@@ -245,6 +305,14 @@ def main():
     ## open worksheet
     yearly_spreadsheet = spreadbook.add_worksheet(sheet_name)
     yearly_spreadsheet.freeze_panes(2, 2)
+
+    ## load PB data
+    spamReader_PB = csv.reader(open('./yearly_tmp_data.csv', 'rb'), delimiter=',',quotechar='"')
+    for row in spamReader_PB:
+        pb_data.append(row)
+
+    row_headers.append(pb_data[0][0])
+
     # header & title
     for t in range(5):
         yearly_spreadsheet.merge_range(0,2+TOTAL_FETCH_YEARS*t,0,1+TOTAL_FETCH_YEARS+TOTAL_FETCH_YEARS*t, row_headers[t], title_format)
@@ -278,9 +346,15 @@ def main():
         yearly_spreadsheet.write(stock_count_row,0,int(stock_id),id_format)
         yearly_spreadsheet.write(stock_count_row,1,stock_name_hyperlink, hyperlink_format)
 
+        for row_data in pb_data:
+            if row_data[1] == f_short_name:
+                pb_value = row_data[2]
+                break
+            else:
+                pb_value = 'n/a'
 
         # merge data
-        merge_data(yearly_spreadsheet, f_name, date_list[-TOTAL_FETCH_YEARS], date_list[-1], stock_count_row)
+        merge_data(yearly_spreadsheet, f_name, date_list[-TOTAL_FETCH_YEARS], date_list[-1], stock_count_row, pb_value)
 
         # merge data
         stock_count += 1

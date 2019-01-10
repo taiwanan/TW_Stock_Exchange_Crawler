@@ -587,6 +587,86 @@ class Crawler():
         for fetch_year_w in range(int(last_date_of_file)+1, int(year_w)+1):
             self._get_earning_data(str(fetch_year_w))
             print ''
+
+    def get_tmp_data(self, year_w, quarter):
+        process_count = 0
+        date_str_c_year = str((int(year_w)-1911))              #transfer to Taiwan year
+
+        valid_data = True
+        invalid_text = u'查詢無資料!'.encode('utf-8')
+
+        payload_tse_ifrs = {
+            'ifrs':'Y', # apply IFRS after 2011 (>2011, partial), and ALL after 2014 (>2014)
+            'step':'1',
+            'firstin':'ture',
+            'off':'1',
+            'isQuery':'Y',
+            'TYPEK':'sii',  # TSE => 'sii' ; OTC => 'otc'
+            'season':quarter,
+            'year':date_str_c_year
+        }
+
+        payload_otc_ifrs = {'ifrs':'Y', 'step':'1', 'firstin':'ture', 'off':'1', 'isQuery':'Y', 'TYPEK':'otc', 'season':quarter, 'year':date_str_c_year}
+        payload_type_new = [payload_tse_ifrs, payload_otc_ifrs]
+
+        #url = 'http://mops.twse.com.tw/mops/web/ajax_t163sb04'
+        url = 'http://mops.twse.com.tw/mops/web/ajax_t163sb05'
+
+        print 'Crawling net asset of %s Q%s ...'%(year_w, quarter)
+
+        f = open('./yearly_tmp_data.csv'.format(quarter), 'w')
+
+        for payload_to_fetch in payload_type_new:
+
+            try:
+                page = requests.post(url, data=payload_to_fetch)
+            except requests.exceptions.ConnectionError:
+                logging.error(" requests.exceptions.ConnectionError, try again!")
+                time.sleep(180)
+                page = requests.post(url, data=payload_to_fetch)
+
+            page.encoding = 'utf-8'
+            #print page.text.encode('utf-8')
+
+            if not page.ok:
+                logging.error("Can not get {} data".format(payload_to_fetch))
+                return
+
+            # Parse page
+            tree = html.fromstring(page.text)
+
+            # data is valid
+            for tr in tree.xpath('//h4/font'):
+                valid = tr.xpath('text()')
+                if (invalid_text == valid[0].encode('utf-8')):
+                    valid_data = False
+                else:
+                    valid_data = True
+
+            if valid_data == False:
+                print 'can not crawl net asset data!!!'
+                break
+
+            # ready to fetch data
+            for table_count in range(1,8):  # assume have 8 tables to fetch
+                for tr_idx in tree.xpath('//table[%s][@class="hasBorder"]/tr'%table_count):
+                    tds_idx = tr_idx.xpath('td/text()')
+
+                    if not tds_idx:     # no data found
+                        continue
+
+                    stock_id = tds_idx[0].strip()
+
+                    row = self._clean_row([
+                        '%s Q%s'%(year_w, quarter),  # 年度(西元)
+                        stock_id,
+                        tds_idx[-1],    #  淨值
+                    ])
+
+                    cw = csv.writer(f, lineterminator='\r\n')
+                    cw.writerow(row)
+        f.close()
+
 def main():
 
     global last_date_of_file
@@ -635,6 +715,23 @@ def main():
             parser.error('Please do table-init first!')
             return
 
+        # start crawling temporary data of this year
+        if this_year.month < 4:
+            fetch_year = str(int(this_year.year)-1) # last year of Q3
+            fetch_quarter = '3'
+        elif this_year.month < 6:
+            fetch_year = str(int(this_year.year)) # last year of Q4
+            fetch_quarter = '4'
+        elif this_year.month < 9:
+            fetch_year = str(int(this_year.year)) # last year of Q1
+            fetch_quarter = '1'
+        elif this_year.month < 11:
+            fetch_year = str(int(this_year.year)) # last year of Q2
+            fetch_quarter = '2'
+
+        print 'Crawling TSE/OTC temporary data in year of ' + fetch_year + 'Q' + fetch_quarter + ' ...'
+        crawler.get_tmp_data(fetch_year, fetch_quarter)
+
         # get the last date from '1101.csv'
         lastdate = crawler.get_last_date('1101', 'trading')
         #lastdate = crawler.get_last_date('1101', 'earning')
@@ -643,25 +740,30 @@ def main():
         else:
             last_date_of_file = lastdate
 
+
+        print 'Crawling TSE/OTC yearly data to ' + str(int(this_year.year)-1) + ' ...'
+
         if int(this_year.year) < (int(last_date_of_file) + 2):
             print 'Data is up-to-date!'
             return
         else:
-            fetch_year = str(int(this_year.year)-1)
+            if int(this_year.month) > 4 :   # earning report is not ready
+                fetch_year = str(int(this_year.year)-1)
+            else:
+                print 'Data is up-to-date!'
+                return
                     
         if (args.skip == False):
             print 'Checking is there a new stock...'
             crawler.check_new_stock(date.year, date.month, date.day)
 
         print ''
-        print 'Crawling TSE/OTC yearly data to ' + fetch_year + ' ...'
 
         # start crawling data
         crawler.get_data(fetch_year)
 
-        print '\r\rdone'
         print ''
-
+        print '\r\rdone'
         os.system('python -u create_yearly_chart.py')
 if __name__ == '__main__':
     main()
