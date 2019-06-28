@@ -10,3 +10,5 @@ pip install openpyxl
 pip install numpy
 pip install testresources
 pip install python-dateutil
+echo "SSL: sudo apt-get install libffi-dev libssl-dev"
+pip install pyopenssl ndg-httpsclient pyasn1
