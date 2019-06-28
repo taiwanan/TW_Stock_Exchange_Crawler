@@ -54,11 +54,10 @@ class Crawler():
         date_str_c_month = str('{:01d}'.format(int(date_str_w[5:7])))   #transfer to Taiwan year
         stock_have_data=[]
 
-
-        url_0 = 'http://mops.twse.com.tw/nas/t21/sii/t21sc03_{}_{}_0.html'.format(date_str_c_year, date_str_c_month) # 國內上市
-        url_1 = 'http://mops.twse.com.tw/nas/t21/sii/t21sc03_{}_{}_1.html'.format(date_str_c_year, date_str_c_month) # 國外上市
-        url_2 = 'http://mops.twse.com.tw/nas/t21/otc/t21sc03_{}_{}_0.html'.format(date_str_c_year, date_str_c_month) # 國內上櫃
-        url_3 = 'http://mops.twse.com.tw/nas/t21/otc/t21sc03_{}_{}_1.html'.format(date_str_c_year, date_str_c_month) # 國外上櫃
+        url_0 = 'https://mops.twse.com.tw/nas/t21/sii/t21sc03_{}_{}_0.html'.format(date_str_c_year, date_str_c_month) # 國內上市
+        url_1 = 'https://mops.twse.com.tw/nas/t21/sii/t21sc03_{}_{}_1.html'.format(date_str_c_year, date_str_c_month) # 國外上市
+        url_2 = 'https://mops.twse.com.tw/nas/t21/otc/t21sc03_{}_{}_0.html'.format(date_str_c_year, date_str_c_month) # 國內上櫃
+        url_3 = 'https://mops.twse.com.tw/nas/t21/otc/t21sc03_{}_{}_1.html'.format(date_str_c_year, date_str_c_month) # 國外上櫃
 
         fetch_url = [url_0, url_1, url_2, url_3]
         fetch_name= [u'國內上市', u'國外上市', u'國內上櫃', u'國外上櫃']
