@@ -224,8 +224,8 @@ class Crawler():
         payload_type_mix = [payload_tse, payload_otc, payload_tse_ifrs, payload_otc_ifrs]
         payload_type_new = [payload_tse_ifrs, payload_otc_ifrs]
 
-        url_ifrs_yes = 'http://mops.twse.com.tw/mops/web/ajax_t163sb05'
-        url_ifrs_no = 'http://mops.twse.com.tw/mops/web/ajax_t51sb07'
+        url_ifrs_yes = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+        url_ifrs_no = 'https://mops.twse.com.tw/mops/web/ajax_t51sb07'
 
         if int(year_w) < 2012:
             payload = payload_type_old
@@ -308,7 +308,7 @@ class Crawler():
         payload_type_mix = [payload_tse, payload_otc, payload_tse_ifrs, payload_otc_ifrs]
         payload_type_new = [payload_tse_ifrs, payload_otc_ifrs]
 
-        url = 'http://mops.twse.com.tw/mops/web/ajax_t51sb02'
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t51sb02'
 
         if int(year_w) < 2012:
             payload = payload_type_old
@@ -610,7 +610,7 @@ class Crawler():
         payload_type_new = [payload_tse_ifrs, payload_otc_ifrs]
 
         #url = 'http://mops.twse.com.tw/mops/web/ajax_t163sb04'
-        url = 'http://mops.twse.com.tw/mops/web/ajax_t163sb05'
+        url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
 
         print 'Crawling net asset of %s Q%s ...'%(year_w, quarter)
 
