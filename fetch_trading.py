@@ -87,7 +87,7 @@ class Crawler():
         # Parse page
         tree = html.fromstring(page.text)
 
-        for tr in tree.xpath('//table[5]/tbody/tr'):
+        for tr in tree.xpath('//table[9]/tbody/tr'):
             tds = tr.xpath('td/text()')
 
             sign = tr.xpath('td/font/text()')
@@ -111,10 +111,10 @@ class Crawler():
                 process_count += 1
                 self.process('[TSE]', date_str_c, tse_files, process_count)
 
-        if (tree.xpath('//table[2]/tbody/tr')):
-            print ''
+        if (tree.xpath('//table[9]/tbody/tr')):
+            print ''    #data available
         else:
-            print '[TSE]' + date_str_c + "... none"
+            print '[TSE]' + date_str_c + "... none" #data unavailable, maybe on holiday, weekend...
 
     def _get_otc_data(self, date_str):
         ttime = str(int(time.time()*100))
@@ -253,7 +253,7 @@ class Crawler():
         url_tse = 'http://www.twse.com.tw/exchangeReport/MI_INDEX?response=html&date={}&type={}'.format(date_str_w, 'ALLBUT0999')
         url_otc = 'http://www.tpex.org.tw/web/stock/aftertrading/otc_quotes_no1430/stk_wn1430_result.php?l=zh-tw&o=htm&d={}&se=EW&s=0,asc,0'.format(date_str_c)
 
-        xpath_tse = '//table[5]/tbody/tr'
+        xpath_tse = '//table[9]/tbody/tr'
         xpath_otc = '//table[1]/tbody/tr'
 
         fetch_url   = [url_tse, url_otc]

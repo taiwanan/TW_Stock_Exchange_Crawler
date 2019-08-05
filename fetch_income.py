@@ -201,7 +201,7 @@ class Crawler():
         url_tse = 'http://www.twse.com.tw/exchangeReport/MI_INDEX?response=html&date={}&type={}'.format(date_str_w, 'ALLBUT0999')
         url_otc = 'http://www.tpex.org.tw/web/stock/aftertrading/otc_quotes_no1430/stk_wn1430_result.php?l=zh-tw&o=htm&d={}&se=EW&s=0,asc,0'.format(date_str_c)
 
-        xpath_tse = '//table[5]/tbody/tr'
+        xpath_tse = '//table[9]/tbody/tr'
         xpath_otc = '//table[1]/tbody/tr'
 
         fetch_url   = [url_tse, url_otc]
